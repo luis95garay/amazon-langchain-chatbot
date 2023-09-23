@@ -1,0 +1,22 @@
+version: '0'
+services:
+  chatbot_backend:
+    image: chatbot_backend:latest
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    ports:
+        - "9001:9000"
+    restart: unless-stopped
+    working_dir: /app
+    environment:
+        -  OPENAI_API_KEY=${OPENAI_API_KEY}
+  chatbot_frontend:
+    image: chatbot_frontend:latest
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    ports:
+        - "3000:3000"
+    restart: unless-stopped
+    working_dir: /app
