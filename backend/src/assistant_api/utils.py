@@ -14,7 +14,7 @@ def load_file_content():
     file_path = Path(__file__).resolve()
 
     vectorstores_path = file_path.parent \
-        .parent.parent / "data" / "final_vectorstores" / "vectorstore.pkl"
+        .parent.parent / "data" / "final_vectorstores" / "vectorstore3000.pkl"
 
     logging.info("loading vectorstore")
     if not Path(vectorstores_path).exists():

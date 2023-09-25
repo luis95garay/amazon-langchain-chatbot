@@ -140,7 +140,6 @@ langchain.readthedocs.io/
 
 # data
 *.csv
-*.pkl
 *.md
 
 # credentials
