@@ -9,20 +9,11 @@ services:
         - "9001:9000"
         - "9003:9002"
     restart: unless-stopped
-    # working_dir: /app
+    working_dir: /app/src
     environment:
         -  OPENAI_API_KEY=${OPENAI_API_KEY}
-  # chatbot_backend:
-  #   image: chatbot_backend:cero
-  #   build:
-  #     context: backend
-  #     dockerfile: Dockerfile.cero
-  #   ports:
-  #       - "9001:9000"
-  #   restart: unless-stopped
-  #   working_dir: /app
-  #   environment:
-  #       -  OPENAI_API_KEY=${OPENAI_API_KEY}
+    volumes:
+      - ./backend:/app
   chatbot_frontend:
     image: chatbot_frontend:latest
     build:
