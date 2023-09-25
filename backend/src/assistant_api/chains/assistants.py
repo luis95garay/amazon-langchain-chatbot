@@ -7,7 +7,8 @@ from langchain.chains import (
     RetrievalQAWithSourcesChain
 )
 from langchain.chains.chat_vector_db.prompts import (
-CONDENSE_QUESTION_PROMPT, QA_PROMPT)
+    CONDENSE_QUESTION_PROMPT, QA_PROMPT
+)
 from langchain.chains.llm import LLMChain
 from langchain.chains.question_answering import load_qa_chain
 from langchain.chat_models import ChatOpenAI
@@ -16,13 +17,17 @@ from langchain.memory import ConversationBufferWindowMemory
 from langchain.agents.agent import AgentExecutor
 from langchain.agents.agent_types import AgentType
 from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain
-from langchain.chains.router.llm_router import LLMRouterChain, RouterOutputParser
+from langchain.chains.router.llm_router import (
+    LLMRouterChain, RouterOutputParser
+)
 
 from .prompt_templates import (
     MULTI_PROMPT_ROUTER_TEMPLATE
 )
-from .custom_chains import CustomConversationalRetrievalChain, MyMultiPromptChain, custom_create_pandas_dataframe_agent
+from .custom_chains import (
+    CustomConversationalRetrievalChain, MyMultiPromptChain,
+    custom_create_pandas_dataframe_agent
+)
 
 
 def get_chain_stream_v0(
@@ -180,7 +185,7 @@ def get_agentcsv(
     # Create agent
     llm = ChatOpenAI(
         streaming=True,
-        temperature=0, 
+        temperature=0,
         model="gpt-3.5-turbo-0613",
         callback_manager=stream_manager,
         )
@@ -270,14 +275,16 @@ def get_router_assistant(
 
     chains_agents_infos = [
         {
-            "name": "archivoexcel1", 
+            "name": "archivoexcel1",
             "description": "Descripción uno",
             "func": get_agentcsv(csv_path, stream_handler)
         },
         {
-            "name": "vectorstore1", 
+            "name": "vectorstore1",
             "description": "Descripción dos",
-            "func": get_chainCustom(vectorstore, question_handler, stream_handler)
+            "func": get_chainCustom(
+                vectorstore, question_handler, stream_handler
+                )
         },
         {
             "name": "archivoexcel2",
@@ -287,11 +294,13 @@ def get_router_assistant(
     ]
 
     destination_chains = {p['name']: p['func'] for p in chains_agents_infos}
-    destinations = [f"{p['name']}: {p['description']}" for p in chains_agents_infos]
+    destinations = [
+        f"{p['name']}: {p['description']}" for p in chains_agents_infos
+        ]
     destinations_str = "\n".join(destinations)
 
     llm = ChatOpenAI(
-            temperature=0, 
+            temperature=0,
             streaming=False,
             model="gpt-3.5-turbo-0613",
             callback_manager=stream_manager,
@@ -316,12 +325,15 @@ def get_router_assistant(
     chain = MyMultiPromptChain(
         router_chain=router_chain,
         destination_chains=destination_chains,
-        default_chain=get_chainCustom(vectorstore, question_handler, stream_handler),
+        default_chain=get_chainCustom(
+            vectorstore, question_handler, stream_handler
+            ),
         verbose=True,
         callback_manager=manager
         )
-    
+
     return chain
+
 
 def get_chain_v1(
     vectorstore: VectorStore
@@ -366,6 +378,7 @@ def get_chain_v1(
         verbose=True,
     )
     return qa
+
 
 def get_chain_RetrievalQASources_v0(
     vectorstore: VectorStore

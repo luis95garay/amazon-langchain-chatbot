@@ -8,10 +8,11 @@ from langchain.vectorstores import VectorStore
 from assistant_api.callback import (
     StreamingLLMCallbackHandler, QuestionGenCallbackHandler
     )
-from assistant_api.chains.assistants import get_chain_v0, get_chain_v1, get_chain_RetrievalQASources_v0
+from assistant_api.chains.assistants import (
+    get_chain_v0, get_chain_RetrievalQASources_v0
+)
 from assistant_api.schemas import ChatResponse, InputRequest
 from assistant_api.utils import get_file_content, load_file_content
-from assistant_api.routes.response import Responses
 
 
 router = APIRouter(tags=['virtual_assistant'])
@@ -29,7 +30,8 @@ def ask_question(
 ):
     # data = qa1.run({"question": params.input})
     result = qa1(params.input, return_only_outputs=True)
-    response_text = result['answer'] + '. Look for more information in: ' + result['sources']
+    response_text = result['answer'] + '. Look for more information in: ' \
+        + result['sources']
 
     return response_text.replace('\n', '')
 

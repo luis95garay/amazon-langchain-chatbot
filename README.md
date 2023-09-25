@@ -1,6 +1,6 @@
 # Amazon Langchain Chatbot 🦜️🔗
 
-Amazon Langchain Chatbot is a chatbot implementation designed for answering questions related to the [LangChain documentation](https://langchain.readthedocs.io/en/latest/) and the OpenAI API. This chatbot is integrated with Amazon SageMaker and is capable of processing documentation provided in Markdown format.
+Amazon Langchain Chatbot is a chatbot implementation designed for answering questions related to the [LangChain documentation](https://langchain.readthedocs.io/en/latest/) and the OpenAI API. This chatbot is ingested with Amazon SageMaker documentation in Markdown format.
 
 ## Functionalities ✅
 
@@ -13,14 +13,15 @@ Amazon Langchain Chatbot is a chatbot implementation designed for answering ques
 - Supports the creation of vector stores from various sources, including web pages, PDFs, DOCX files, plain text, and Markdown.
 - Allows processing of individual files or entire folders.
 - Provides an option for pre-processing extracted text by generating questions from it.
+- Access the API docs by opening [localhost:9003/docs](http://localhost:9003/docs) in your web browser.
 
 ## Running the Containers ✅
 
 To run the chatbot, follow these steps:
 
-1. Obtain an API key from OpenAI and save it in a `credentials.env` file.
+1. Obtain an API key from OpenAI "OPENAI_API_KEY" and save it in a `credentials.env` file.
 2. Run the following Docker Compose command, specifying the environment file: docker-compose --env-file credentials.env up
-3. Access the chatbot interface by opening [localhost:3000](http://localhost:3001) in your web browser.
+3. Access the chatbot interface by opening [localhost:3000](http://localhost:3000) in your web browser.
 
 ## Question Answering examples
 
@@ -40,4 +41,3 @@ To run the chatbot, follow these steps:
 
 - [ChatGPT AI Frontend Open Source Template](https://github.com/horizon-ui/chatgpt-ai-template)
 - [LangChain with Websocket Template](https://github.com/pors/langchain-chat-websockets)
-

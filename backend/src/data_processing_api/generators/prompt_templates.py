@@ -2,7 +2,7 @@ from langchain.prompts import PromptTemplate
 
 
 question_template = PromptTemplate(
-            input_variables=["document","context"],
+            input_variables=["document", "context"],
             template="""
                       Teniendo en consideración el siguiente contexto, puedes generar preguntas a partir del siguiente texto de entrada y generarlas con el siguiente formato diccionario de python?, intenta hacer preguntas que engloben varias puntos
 

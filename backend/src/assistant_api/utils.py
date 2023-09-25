@@ -25,6 +25,7 @@ def load_file_content():
         global vectorstore
         vectorstore = pickle.load(f)
 
+
 # Create a dependency to provide the loaded file content
 def get_file_content():
     return vectorstore

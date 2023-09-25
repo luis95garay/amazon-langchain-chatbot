@@ -138,7 +138,6 @@ class Docxloader(Docx2txtLoader, BaseLoader):
         super().__init__(file_path)
 
 
-
 class MarkdwnLoader(UnstructuredMarkdownLoader, BaseLoader):
     """
     Class for loading text from md files and split them in chunks

@@ -8,7 +8,9 @@ from fastapi.routing import APIRouter
 
 from data_processing_api.responses.response import Responses
 from data_processing_api.services.text_extraction import TextExtractionService
-from data_processing_api.schemas import OnlineSourceText, LocalSourceText, FolderSource
+from data_processing_api.schemas import (
+    OnlineSourceText, LocalSourceText, FolderSource
+)
 from data_processing_api.text_extractors.utils import search_folder
 
 

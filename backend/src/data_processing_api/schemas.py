@@ -1,7 +1,6 @@
 """Schemas for the chat app."""
 from enum import Enum
 from collections import OrderedDict
-from typing import List
 
 import json
 from pydantic import BaseModel

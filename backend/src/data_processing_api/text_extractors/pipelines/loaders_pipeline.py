@@ -64,7 +64,7 @@ class TextExtractorPipeline:
             documents = loader.load()
 
         return loader.clean_load(documents, chunk_size, chunk_overlap)
-    
+
     def create_vectorstore(
         self,
         documents: List[Document],
@@ -88,7 +88,9 @@ class TextExtractorPipeline:
         texts = [doc.page_content for doc in documents]
         metadatas = [doc.metadata for doc in documents]
         embeddings = OpenAIEmbeddings()
-        current_vectorstore = FAISS.from_texts(texts, embeddings, metadatas=metadatas)
+        current_vectorstore = FAISS.from_texts(
+            texts, embeddings, metadatas=metadatas
+        )
 
         file_path = Path(__file__).resolve()
 

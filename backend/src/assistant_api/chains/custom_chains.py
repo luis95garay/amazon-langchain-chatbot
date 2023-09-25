@@ -1,17 +1,23 @@
-from langchain.chains import ConversationalRetrievalChain, LLMChain, MultiRouteChain
 from typing import Mapping, List, Union, Dict, Any, Optional, Tuple
+import inspect
+
+from langchain.chains import (
+    ConversationalRetrievalChain, LLMChain, MultiRouteChain
+)
 from langchain.callbacks.manager import (
     AsyncCallbackManagerForChainRun,
     CallbackManagerForChainRun
 )
 from langchain.schema.messages import BaseMessage
-import inspect
+
 from langchain.agents.agent import AgentExecutor
 from langchain.schema.language_model import BaseLanguageModel
 from langchain.agents.types import AgentType
 from langchain.callbacks.base import BaseCallbackManager
 from langchain.agents.agent import BaseSingleActionAgent
-from langchain.agents.agent_toolkits.pandas.base import _get_functions_prompt_and_tools, _get_prompt_and_tools
+from langchain.agents.agent_toolkits.pandas.base import (
+    _get_functions_prompt_and_tools, _get_prompt_and_tools
+)
 from langchain.agents.mrkl.base import ZeroShotAgent
 from langchain.agents.openai_functions_agent.base import OpenAIFunctionsAgent
 
@@ -24,7 +30,9 @@ def _get_chat_history(chat_history: List[CHAT_TURN_TYPE]) -> str:
     buffer = ""
     for dialogue_turn in chat_history:
         if isinstance(dialogue_turn, BaseMessage):
-            role_prefix = _ROLE_MAP.get(dialogue_turn.type, f"{dialogue_turn.type}: ")
+            role_prefix = _ROLE_MAP.get(
+                dialogue_turn.type, f"{dialogue_turn.type}: "
+                )
             buffer += f"\n{role_prefix}{dialogue_turn.content}"
         elif isinstance(dialogue_turn, tuple):
             human = "Human: " + dialogue_turn[0]
@@ -59,7 +67,7 @@ class CustomConversationalRetrievalChain(ConversationalRetrievalChain):
             new_question = self.question_generator.run(
                 input=question, chat_history=chat_history_str, callbacks=callbacks
             )
-            
+
         else:
             new_question = question
 
@@ -83,7 +91,7 @@ class CustomConversationalRetrievalChain(ConversationalRetrievalChain):
         if self.return_generated_question:
             output["generated_question"] = new_question
         return output
-    
+
     async def _acall(
         self,
         inputs: Dict[str, Any],
