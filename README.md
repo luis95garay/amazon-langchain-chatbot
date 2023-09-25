@@ -40,6 +40,12 @@ To run the chatbot, follow these steps:
 
 ![Question 4](frontend/public/img/question4.png)
 
+
+## How to update the vectorstore
+1. Run the request `/text_extraction/folder`
+
+![Alt text](frontend/public/img/refresh.png)
+
 ### Sources of Inspiration
 
 - [ChatGPT AI Frontend Open Source Template](https://github.com/horizon-ui/chatgpt-ai-template)
