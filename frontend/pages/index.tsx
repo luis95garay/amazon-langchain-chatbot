@@ -1,16 +1,9 @@
 'use client';
 /*eslint-disable*/
 
-import Link from '@/components/link/Link';
 import MessageBoxChat from '@/components/MessageBox';
 import { ChatBody, OpenAIModel } from '@/types/types';
 import {
-  Accordion,
-  AccordionButton,
-  AccordionIcon,
-  AccordionItem,
-  AccordionPanel,
-  Box,
   Button,
   Flex,
   Icon,
@@ -23,7 +16,6 @@ import {
 import { useEffect, useState } from 'react';
 import { MdAutoAwesome, MdBolt, MdEdit, MdPerson } from 'react-icons/md';
 import Bg from '../public/img/chat/react.png';
-import socketIOClient from 'socket.io-client';
 
 
 export default function Chat(props: { apiKeyApp: string }) {
@@ -62,109 +54,6 @@ export default function Chat(props: { apiKeyApp: string }) {
   );
   const [message, setMessage] = useState<string>('');
   const [response, setResponse] = useState<string>(''); // Store responses from the server
-  // const [socket, setSocket] = useState<SocketIOClient.Socket | null>(null);
-  
-  // useEffect(() => {
-  //   // Create a WebSocket connection when the component mounts
-  //   const socket = socketIOClient('http://localhost:9001/chat'); // Replace with your WebSocket server URL
-  //   setSocket(socket);
-
-  //   // Listen for messages from the server and update the state
-  //   socket.on('message', (data: string) => {
-  //     setResponse(data);
-  //   });
-
-  //   // Cleanup the WebSocket connection when the component unmounts
-  //   return () => {
-  //     if (socket) {
-  //       socket.disconnect();
-  //     }
-  //   };
-  // }, []);
-
-  // const handleButtonClick = () => {
-  //   if (socket) {
-  //     setInputOnSubmit(inputCode);
-  //     // Send a message to the WebSocket server when the button is clicked
-  //     socket.emit(inputCode);
-  //   }
-  // };
-
-  // const handleTranslate = async () => {
-  //   const apiKey = apiKeyApp;
-  //   setInputOnSubmit(inputCode);
-
-  //   // Chat post conditions(maximum number of characters, valid message etc.)
-  //   const maxCodeLength = model === 'gpt-3.5-turbo' ? 700 : 700;
-
-  //   if (!apiKeyApp?.includes('sk-') && !apiKey?.includes('sk-')) {
-  //     alert('Please enter an API key.');
-  //     return;
-  //   }
-
-  //   if (!inputCode) {
-  //     alert('Please enter your message.');
-  //     return;
-  //   }
-
-  //   if (inputCode.length > maxCodeLength) {
-  //     alert(
-  //       `Please enter code less than ${maxCodeLength} characters. You are currently at ${inputCode.length} characters.`,
-  //     );
-  //     return;
-  //   }
-  //   setOutputCode(' ');
-  //   setLoading(true);
-  //   const controller = new AbortController();
-  //   const body: ChatBody = {
-  //     inputCode,
-  //     model,
-  //     apiKey,
-  //   };
-
-  //   // -------------- Fetch --------------
-  //   const response = await fetch('/api/chatAPI', {
-  //     method: 'POST',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //     },
-  //     signal: controller.signal,
-  //     body: JSON.stringify(body),
-  //   });
-    
-  //   if (!response.ok) {
-  //     setLoading(false);
-  //     if (response) {
-  //       // console.log(response)
-  //       alert(
-  //         'Something went wrong went fetching from the API. Make sure to use a valid API key.',
-  //       );
-  //     }
-  //     return;
-  //   }
-
-  //   const data = response.body;
-
-  //   if (!data) {
-  //     setLoading(false);
-  //     alert('Something went wrong');
-  //     return;
-  //   }
-
-  //   const reader = data.getReader();
-  //   const decoder = new TextDecoder();
-  //   let done = false;
-
-  //   while (!done) {
-  //     setLoading(true);
-  //     const { value, done: doneReading } = await reader.read();
-  //     done = doneReading;
-  //     const chunkValue = decoder.decode(value);
-  //     setOutputCode((prevCode) => prevCode + chunkValue);
-  //   }
-
-  //   setLoading(false);
-  // };
 
   const handleTranslate = async () => {
     const apiKey = apiKeyApp;
@@ -198,15 +87,6 @@ export default function Chat(props: { apiKeyApp: string }) {
       apiKey,
     };
 
-    // -------------- Fetch --------------
-    // const response = await fetch('/api/chatAPI', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   signal: controller.signal,
-    //   body: JSON.stringify(body),
-    // });
     const response = await fetch('http://127.0.0.1:9001/request/chat', {
       method: 'POST',
       headers: {
@@ -221,7 +101,6 @@ export default function Chat(props: { apiKeyApp: string }) {
     if (!response.ok) {
       setLoading(false);
       if (response) {
-        // console.log(response)
         alert(
           'Something went wrong went fetching from the API. Make sure to use a valid API key.',
         );
@@ -238,37 +117,12 @@ export default function Chat(props: { apiKeyApp: string }) {
 
     const reader = data.getReader();
     const decoder = new TextDecoder();
-    let done = false;
-
-    while (!done) {
-      setLoading(true);
-      const { value, done: doneReading } = await reader.read();
-      done = doneReading;
-      const chunkValue = decoder.decode(value);
-      setOutputCode((prevCode) => prevCode + chunkValue);
-    }
+    const { value, done: doneReading } = await reader.read();
+    const chunkValue = decoder.decode(value);
+    setOutputCode(chunkValue)
 
     setLoading(false);
   };
-
-  // -------------- Copy Response --------------
-  // const copyToClipboard = (text: string) => {
-  //   const el = document.createElement('textarea');
-  //   el.value = text;
-  //   document.body.appendChild(el);
-  //   el.select();
-  //   document.execCommand('copy');
-  //   document.body.removeChild(el);
-  // };
-
-  // *** Initializing apiKey with .env.local value
-  // useEffect(() => {
-  // ENV file verison
-  // const apiKeyENV = process.env.NEXT_PUBLIC_OPENAI_API_KEY
-  // if (apiKey === undefined || null) {
-  //   setApiKey(apiKeyENV)
-  // }
-  // }, [])
 
   const handleChange = (Event: any) => {
     setInputCode(Event.target.value);
@@ -373,34 +227,6 @@ export default function Chat(props: { apiKeyApp: string }) {
             </Flex>
           </Flex>
 
-          <Accordion color={gray} allowToggle w="100%" my="0px" mx="auto">
-            {/* <AccordionItem border="none">
-              <AccordionButton
-                borderBottom="0px solid"
-                maxW="max-content"
-                mx="auto"
-                _hover={{ border: '0px solid', bg: 'none' }}
-                _focus={{ border: '0px solid', bg: 'none' }}
-              > */}
-                {/* <Box flex="1" textAlign="left">
-                  <Text color={gray} fontWeight="500" fontSize="sm">
-                    No plugins added
-                  </Text>
-                </Box> */}
-                {/* <AccordionIcon color={gray} />
-              </AccordionButton> */}
-              {/* <AccordionPanel mx="auto" w="max-content" p="0px 0px 10px 0px">
-                <Text
-                  color={gray}
-                  fontWeight="500"
-                  fontSize="sm"
-                  textAlign={'center'}
-                >
-                  This is a cool text example.
-                </Text>
-              </AccordionPanel> */}
-            {/* </AccordionItem> */}
-          </Accordion>
         </Flex>
         {/* Main Box */}
         <Flex
@@ -525,27 +351,6 @@ export default function Chat(props: { apiKeyApp: string }) {
           </Button>
         </Flex>
 
-        {/* <Flex
-          justify="center"
-          mt="20px"
-          direction={{ base: 'column', md: 'row' }}
-          alignItems="center"
-        >
-          <Text fontSize="xs" textAlign="center" color={gray}>
-            Free Research Preview. ChatGPT may produce inaccurate information
-            about people, places, or facts.
-          </Text>
-          <Link href="https://help.openai.com/en/articles/6825453-chatgpt-release-notes">
-            <Text
-              fontSize="xs"
-              color={textColor}
-              fontWeight="500"
-              textDecoration="underline"
-            >
-              ChatGPT May 12 Version
-            </Text>
-          </Link>
-        </Flex> */}
       </Flex>
     </Flex>
   );
