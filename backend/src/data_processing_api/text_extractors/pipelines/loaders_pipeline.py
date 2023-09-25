@@ -52,15 +52,16 @@ class TextExtractorPipeline:
               the extracted text chunks.
 
         """
-        path = Path(file_path)
+        if "http" not in file_path:
+            file_path = Path(file_path)
 
         if is_folder:
             documents = []
-            for file in path.iterdir():
-                loader = self.extractor(file)
+            for file in file_path.iterdir():
+                loader = self.extractor(str(file))
                 documents += loader.load()
         else:
-            loader = self.extractor(path)
+            loader = self.extractor(str(file_path))
             documents = loader.load()
 
         return loader.clean_load(documents, chunk_size, chunk_overlap)
@@ -68,6 +69,7 @@ class TextExtractorPipeline:
     def create_vectorstore(
         self,
         documents: List[Document],
+        name: str
     ) -> None:
         """
         Extract text from a file using the chosen loader and split
@@ -95,6 +97,7 @@ class TextExtractorPipeline:
         file_path = Path(__file__).resolve()
 
         vectorstores_path = file_path.parent.parent.parent \
-            .parent.parent / "data" / "final_vectorstores" / "vectorstore.pkl"
-        with open(vectorstores_path, "wb") as f:
+            .parent.parent / "data" / "final_vectorstores" / f"{name}.pkl"
+        with open(str(vectorstores_path), "wb") as f:
             pickle.dump(current_vectorstore, f)
+        print(f"created in path: {str(vectorstores_path)}")

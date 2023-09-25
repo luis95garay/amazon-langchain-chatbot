@@ -18,6 +18,7 @@ class TextExtractionService:
     def unstructured_processing(
         extractor: str,
         path: str,
+        name: str,
         key: tuple,
         uuid: str,
         is_tempfile: bool = False,
@@ -26,7 +27,7 @@ class TextExtractionService:
         PROCESSING[key] = uuid
         loader = TextExtractorPipeline(extractor)
         data = loader.get_documents(path, is_folder=is_folder)
-        loader.create_vectorstore(data)
+        loader.create_vectorstore(data, name)
         RESULT[uuid] = "Completed"
         if is_tempfile:
             os.remove(path)

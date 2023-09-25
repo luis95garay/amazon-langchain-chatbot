@@ -1,12 +1,10 @@
 from .loaders import (
     PDFloader, TXTloader,
-    Docxloader, SeleniumLoader,
-    MarkdwnLoader
+    Docxloader, MarkdwnLoader
 )
 
 
 MAPPED_LOADERS_METHODS = {
-    "web": SeleniumLoader,
     "pdf": PDFloader,
     "txt": TXTloader,
     "docx": Docxloader,

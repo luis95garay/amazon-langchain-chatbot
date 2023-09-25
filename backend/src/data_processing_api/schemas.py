@@ -20,15 +20,17 @@ class OnlineExtractorEnum(str, Enum):
 class OnlineSourceText(BaseModel):
     extractor: OnlineExtractorEnum
     path: str
+    name: str
 
 
 class FolderSource(BaseModel):
-    extractor: FileExtractorEnum
-    path: str
+    extractor: FileExtractorEnum = "md"
+    path: str = "sagemaker_documentation"
 
 
 class LocalSourceText(BaseModel):
     extractor: FileExtractorEnum
+    name: str
 
     @classmethod
     def __get_validators__(cls):

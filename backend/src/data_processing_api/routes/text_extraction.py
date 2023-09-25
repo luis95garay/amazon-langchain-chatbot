@@ -14,27 +14,7 @@ from data_processing_api.schemas import (
 from data_processing_api.text_extractors.utils import search_folder
 
 
-router = APIRouter(tags=['text_extractions'])
-
-
-@router.post('/text_extractions/online')
-async def unstructured_online_source(
-    bg_task: BackgroundTasks,
-    task_info: OnlineSourceText
-):
-    # Get the current time
-    current_time = datetime.datetime.now()
-
-    # Convert the current time to a string
-    current_time_str = current_time.strftime("%Y-%m-%d %H:%M:%S")
-    key = current_time_str + "-" + task_info.extractor
-    if (_uuid := TextExtractionService.is_processing(key)):
-        return Responses.accepted(_uuid)
-    _uuid = str(uuid.uuid4())
-    bg_task.add_task(
-        TextExtractionService.unstructured_processing, task_info.extractor,
-        task_info.path, key, _uuid)
-    return Responses.created(_uuid)
+router = APIRouter(tags=['vectorstore_processing'])
 
 
 @router.post('/text_extractions/file')
@@ -60,7 +40,7 @@ async def unstructured_file_source(
     _uuid = str(uuid.uuid4())
     bg_task.add_task(
         TextExtractionService.unstructured_processing, params.extractor,
-        temp_file_path, key, _uuid, True)
+        temp_file_path, params.name, key, _uuid, True)
     return Responses.created(_uuid)
 
 
@@ -84,7 +64,7 @@ async def unstructured_folder_source(
     _uuid = str(uuid.uuid4())
     bg_task.add_task(
         TextExtractionService.unstructured_processing, task_info.extractor,
-        folder, key, _uuid, False, True)
+        folder, folder, key, _uuid, False, True)
     return Responses.created(_uuid)
 
 
@@ -94,3 +74,23 @@ def get_status(
 ):
     output = TextExtractionService.get_status(id)
     return JSONResponse(output)
+
+
+# @router.post('/text_extractions/online')
+# async def unstructured_online_source(
+#     bg_task: BackgroundTasks,
+#     task_info: OnlineSourceText
+# ):
+#     # Get the current time
+#     current_time = datetime.datetime.now()
+
+#     # Convert the current time to a string
+#     current_time_str = current_time.strftime("%Y-%m-%d %H:%M:%S")
+#     key = current_time_str + "-" + task_info.extractor
+#     if (_uuid := TextExtractionService.is_processing(key)):
+#         return Responses.accepted(_uuid)
+#     _uuid = str(uuid.uuid4())
+#     bg_task.add_task(
+#         TextExtractionService.unstructured_processing, task_info.extractor,
+#         task_info.path, task_info.name, key, _uuid)
+#     return Responses.created(_uuid)
