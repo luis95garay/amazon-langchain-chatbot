@@ -47,6 +47,10 @@ def _get_chat_history(chat_history: List[CHAT_TURN_TYPE]) -> str:
 
 
 class CustomConversationalRetrievalChain(ConversationalRetrievalChain):
+    """
+    Create a custom ConversationalRetrievalChain for handling customize
+    inputs and outputs values
+    """
     @property
     def input_keys(self) -> List[str]:
         """Input keys."""
@@ -132,9 +136,10 @@ class CustomConversationalRetrievalChain(ConversationalRetrievalChain):
 
 
 class MyMultiPromptChain(MultiRouteChain):
-    """A multi-route chain that uses an LLM router chain to choose amongst prompts."""
-
-    """Chain for deciding a destination chain and the input to it."""
+    """
+        Create a custom MultiRouteChain that uses an LLM router chain
+        to choose amongst prompts, for handling customize outputs values
+    """
     destination_chains: Mapping[str, Union[ConversationalRetrievalChain, AgentExecutor]]
     """Map of name to candidate chains that inputs can be routed to."""
     default_chain: ConversationalRetrievalChain
@@ -163,7 +168,9 @@ def custom_create_pandas_dataframe_agent(
     number_of_head_rows: int = 5,
     **kwargs: Dict[str, Any],
 ) -> AgentExecutor:
-    """Construct a pandas agent from an LLM and dataframe."""
+    """
+        Create a custom improved pandas dataframe AgentExecutor
+    """
     agent: BaseSingleActionAgent
     if agent_type == AgentType.ZERO_SHOT_REACT_DESCRIPTION:
         prompt, tools = _get_prompt_and_tools(
@@ -195,7 +202,7 @@ def custom_create_pandas_dataframe_agent(
             include_df_in_prompt=include_df_in_prompt,
             number_of_head_rows=number_of_head_rows,
         )
-        _prompt.messages[0].content += "\nIf they ask for prices, answer always in Quetzales (Q)\nAlways run the python code\nDo not explain the python code"
+        _prompt.messages[0].content += "\nIf they ask for prices, answer always in dolars ($)\nAlways run the python code\nDo not explain the python code"
         agent = OpenAIFunctionsAgent(
             llm=llm,
             prompt=_prompt,

@@ -35,11 +35,25 @@ class TextExtractionService:
 
     @staticmethod
     def is_processing(key: tuple) -> Optional[str]:
+        """
+        Check if a processing task with the specified key is in progress.
+        """
         return PROCESSING.get(key)
 
     @staticmethod
     def get_status(pid: str):
+        """
+        Get the status of a processing task by its unique identifier (UUID).
 
+        Args:
+            pid (str): The unique identifier (UUID) of the processing task.
+
+        Raises:
+            NotProcessingException: If the specified task is not found in the
+                processing queue.
+            StillProcessingException: If the task is still in progress but the
+                result is not available yet.
+        """
         if pid not in PROCESSING.values():
             raise NotProcessingException()
 

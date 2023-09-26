@@ -8,7 +8,7 @@ SUCCESS_MESSAGE = "success"
 
 
 class Responses:
-
+    """A responses class for requests answering"""
     @classmethod
     def response(cls,
                  status: str,

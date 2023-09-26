@@ -10,6 +10,10 @@ vectorstore: Optional[VectorStore] = None
 
 
 def load_file_content():
+    """
+    This function retrieves a vector store from a predefined file path
+    and stores it in a global variable.
+    """
     # Get the absolute path of the current Python script
     file_path = Path(__file__).resolve()
 
@@ -28,4 +32,7 @@ def load_file_content():
 
 # Create a dependency to provide the loaded file content
 def get_file_content():
+    """
+    This function retrieves the previously loaded vectorstore
+    """
     return vectorstore

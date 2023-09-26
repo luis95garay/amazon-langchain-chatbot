@@ -46,6 +46,7 @@ class TextExtractorPipeline:
               loading. Default is 5000.
             chunk_overlap (int, optional): The overlap between
               consecutive chunks. Default is 200.
+            is_folder (bool): If it is a folder or not
 
         Returns:
             List[Document]: A list of Document objects representing

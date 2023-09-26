@@ -28,12 +28,24 @@ qa1 = get_chain_RetrievalQASources_v0(get_file_content())
 def ask_question(
     params: InputRequest
 ):
-    # data = qa1.run({"question": params.input})
-    result = qa1(params.input, return_only_outputs=True)
-    response_text = result['answer'] + '\n\nLook for more information in: \n' \
-        + result['sources']
- 
-    return {'text': response_text}
+    """Handle a POST request to ask a question and return a response."""
+    try:
+        # Use a more descriptive variable name for the result
+        qa_result = qa1(params.input, return_only_outputs=True)
+
+        # Extract answer and sources from the result
+        answer = qa_result.get('answer', 'No answer found')
+        sources = qa_result.get('sources', 'No sources found')
+
+        # Create a formatted response text
+        response_text = f"{answer}\n\n\n\nLook for more information in:\n\n{sources}"
+
+        return {'text': response_text}
+    except Exception:
+        # Handle any exceptions that may occur
+        error_message = "Sorry, something went wrong. Try again"
+        return {'text': error_message}
+
 
 # Option with websocket
 @router.websocket("/chat")
@@ -41,6 +53,14 @@ async def websocket_endpoint(
         websocket: WebSocket,
         vectorstore: VectorStore = Depends(get_file_content)
         ):
+    """
+    WebSocket endpoint for real-time chat with a bot.
+
+    Args:
+        websocket (WebSocket): The WebSocket connection.
+        vectorstore (VectorStore): A vector store used for chat processing.
+
+    """
     await websocket.accept()
     question_handler = QuestionGenCallbackHandler(websocket)
     stream_handler = StreamingLLMCallbackHandler(websocket)

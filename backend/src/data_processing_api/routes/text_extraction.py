@@ -9,7 +9,7 @@ from fastapi.routing import APIRouter
 from data_processing_api.responses.response import Responses
 from data_processing_api.services.text_extraction import TextExtractionService
 from data_processing_api.schemas import (
-    OnlineSourceText, LocalSourceText, FolderSource
+    LocalSourceText, FolderSource
 )
 from data_processing_api.text_extractors.utils import search_folder
 
@@ -23,6 +23,18 @@ async def unstructured_file_source(
     file: UploadFile = File(...),
     params: LocalSourceText = Form(...)
 ):
+    """
+    Endpoint to process unstructured text data from an uploaded file.
+
+    Args:
+        bg_task (BackgroundTasks): A background task manager.
+        file (UploadFile): The uploaded file containing unstructured text data.
+        params (LocalSourceText): Parameters for text extraction.
+
+    Returns:
+        dict: A response dictionary indicating the status of the
+        text extraction job.
+    """
     file_contents = await file.read()
     # Create a temporary file to save the content
     with NamedTemporaryFile(delete=False) as temp_file:
@@ -49,6 +61,17 @@ async def unstructured_folder_source(
     bg_task: BackgroundTasks,
     task_info: FolderSource
 ):
+    """
+    Endpoint to process unstructured text data from an folder path.
+
+    Args:
+        bg_task (BackgroundTasks): A background task manager.
+        task_info (FolderSource): Parameters for text extraction.
+
+    Returns:
+        dict: A response dictionary indicating the status of the
+        text extraction job.
+    """
     # Get the current time
     current_time = datetime.datetime.now()
 
@@ -72,6 +95,7 @@ async def unstructured_folder_source(
 def get_status(
     id: str = Path(...)
 ):
+    """Get the current status of an specific background process"""
     output = TextExtractionService.get_status(id)
     return JSONResponse(output)
 

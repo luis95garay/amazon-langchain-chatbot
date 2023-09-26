@@ -1,4 +1,3 @@
-from bs4 import BeautifulSoup
 from typing import List
 from langchain.document_loaders import (
     PyMuPDFLoader, TextLoader, Docx2txtLoader,
@@ -9,7 +8,6 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema.document import Document
 # from selenium import webdriver
 # from selenium.webdriver.chrome.options import Options
-import re
 
 
 class BaseLoader:
@@ -101,7 +99,7 @@ class MarkdwnLoader(UnstructuredMarkdownLoader, BaseLoader):
 #         self.web_path = web_path
 #         # Set up Chrome WebDriver in headless mode
 #         self.chrome_options = Options()
-#         self.chrome_options.add_argument("--headless")  # Enable headless mode
+#         self.chrome_options.add_argument("--headless")
 #         self.chrome_options.add_argument('--no-sandbox')
 #         self.chrome_options.add_argument('--disable-dev-shm-usage')
 

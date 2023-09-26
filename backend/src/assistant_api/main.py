@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = get_api()
 
+# Enable requests from localhost port 3000
 origins = ["http://localhost:3000"]
 
 app.add_middleware(

@@ -1,11 +1,11 @@
 import pandas as pd
 
 from langchain.callbacks.manager import AsyncCallbackManager
-from langchain.callbacks.tracers import LangChainTracer
 from langchain.chains import (
     ConversationalRetrievalChain, RetrievalQA,
     RetrievalQAWithSourcesChain
 )
+from langchain.chains.base import Chain
 from langchain.chains.chat_vector_db.prompts import (
     CONDENSE_QUESTION_PROMPT, QA_PROMPT
 )
@@ -33,22 +33,23 @@ from .custom_chains import (
 def get_chain_stream_v0(
     vectorstore: VectorStore,
     question_handler,
-    stream_handler,
-    tracing: bool = False
+    stream_handler
 ) -> ConversationalRetrievalChain:
-    """Create a ChatVectorDBChain for question/answering."""
-    # Construct a ChatVectorDBChain with a streaming llm for
-    # combine docs and a separate, non-streaming llm for
-    # question generation
+    """
+    Create a ConversationalRetrievalChain instance for question-answering.
+    with memory up to two previous questions. Considering streaming
+
+    Args:
+        vectorstore (VectorStore): A vector store used for document retrieval.
+        question_handler (AsyncCallbackHandler)
+        stream_handler (AsyncCallbackHandler)
+
+    Returns:
+        ConversationalRetrievalChain: A ConversationalRetrievalChain
+    """
     manager = AsyncCallbackManager([])
     question_manager = AsyncCallbackManager([question_handler])
     stream_manager = AsyncCallbackManager([stream_handler])
-    if tracing:
-        tracer = LangChainTracer()
-        tracer.load_default_session()
-        manager.add_handler(tracer)
-        question_manager.add_handler(tracer)
-        stream_manager.add_handler(tracer)
 
     question_gen_llm = ChatOpenAI(
         model_name="gpt-3.5-turbo",
@@ -92,10 +93,18 @@ def get_chain_v0(
     question_handler=None,
     stream_handler=None
 ) -> ConversationalRetrievalChain:
-    """Create a ChatVectorDBChain for question/answering."""
-    # Construct a ChatVectorDBChain with a streaming llm for
-    # combine docs and a separate, non-streaming llm for
-    # question generation
+    """
+    Create a ConversationalRetrievalChain instance for question-answering.
+    with memory up to two previous questions. Considering streaming
+
+    Args:
+        vectorstore (VectorStore): A vector store used for document retrieval.
+        question_handler (AsyncCallbackHandler)
+        stream_handler (AsyncCallbackHandler)
+
+    Returns:
+        ConversationalRetrievalChain: A ConversationalRetrievalChain
+    """
     manager = AsyncCallbackManager([])
     question_manager = AsyncCallbackManager([question_handler])
     stream_manager = AsyncCallbackManager([stream_handler])
@@ -146,19 +155,21 @@ def get_chain_v0(
 
 
 def get_chain_RetrievalQA_stream_v0(
-    vectorstore: VectorStore, stream_handler, tracing: bool = False
+    vectorstore: VectorStore,
+    stream_handler
 ) -> RetrievalQA:
-    """Create a ChatVectorDBChain for question/answering."""
-    # Construct a ChatVectorDBChain with a streaming llm for combine docs
-    # and a separate, non-streaming llm for question generation
+    """
+    Create a RetrievalQA instance for question-answering.
+
+    Args:
+        vectorstore (VectorStore): A vector store used for document retrieval.
+        stream_handler (AsyncCallbackHandler)
+
+    Returns:
+        RetrievalQA: A RetrievalQA
+    """
     manager = AsyncCallbackManager([])
     stream_manager = AsyncCallbackManager([stream_handler])
-    if tracing:
-        tracer = LangChainTracer()
-        tracer.load_default_session()
-        manager.add_handler(tracer)
-        stream_manager.add_handler(tracer)
-
     streaming_llm = ChatOpenAI(
         model_name="gpt-3.5-turbo",
         streaming=True,
@@ -180,6 +191,17 @@ def get_agentcsv(
         csv_path: str,
         stream_handler
 ) -> AgentExecutor:
+    """
+    Create a AgentExecutor instance for question-answering from a csv file
+    and considering streaming
+
+    Args:
+        vectorstore (VectorStore): A vector store used for document retrieval.
+        stream_handler (AsyncCallbackHandler)
+
+    Returns:
+        AgentExecutor: A AgentExecutor
+    """
     manager = AsyncCallbackManager([])
     stream_manager = AsyncCallbackManager([stream_handler])
     # Create agent
@@ -207,10 +229,18 @@ def get_chainCustom(
     question_handler,
     stream_handler
 ) -> ConversationalRetrievalChain:
-    """Create a ChatVectorDBChain for question/answering."""
-    # Construct a ChatVectorDBChain with a streaming llm for
-    # combine docs and a separate, non-streaming llm for
-    # question generation
+    """
+    Create a ConversationalRetrievalChain instance for question-answering.
+    with memory up to two previous questions. Considering streaming
+
+    Args:
+        vectorstore (VectorStore): A vector store used for document retrieval.
+        question_handler (AsyncCallbackHandler)
+        stream_handler (AsyncCallbackHandler)
+
+    Returns:
+        ConversationalRetrievalChain: A ConversationalRetrievalChain
+    """
     manager = AsyncCallbackManager([])
     question_manager = AsyncCallbackManager([question_handler])
     stream_manager = AsyncCallbackManager([stream_handler])
@@ -264,12 +294,26 @@ def get_chainCustom(
 
 
 def get_router_assistant(
-        vectorstore,
-        csv_path,
-        csv_path1,
-        question_handler,
-        stream_handler
-        ):
+    vectorstore,
+    csv_path,
+    csv_path1,
+    question_handler,
+    stream_handler
+) -> Chain:
+    """
+    Create a MyMultiPromptChain instance for question-answering.
+    using routing logic between different chains
+
+    Args:
+        vectorstore (VectorStore): A vector store used for document retrieval.
+        csv_path (str): the path of an agent
+        csv_path1 (str): the path of an agent
+        question_handler (AsyncCallbackHandler)
+        stream_handler (AsyncCallbackHandler)
+
+    Returns:
+        MyMultiPromptChain: A MyMultiPromptChain
+    """
     manager = AsyncCallbackManager([])
     stream_manager = AsyncCallbackManager([stream_handler])
 
@@ -337,9 +381,17 @@ def get_router_assistant(
 
 def get_chain_v1(
     vectorstore: VectorStore
-) -> ConversationalRetrievalChain:
-    """Create a ChatVectorDBChain for question/answering."""
+) -> Chain:
+    """
+    Create a ConversationalRetrievalChain instance for question-answering.
+    with memory up to two previous questions
 
+    Args:
+        vectorstore (VectorStore): A vector store used for document retrieval.
+
+    Returns:
+        ConversationalRetrievalChain: A ConversationalRetrievalChain
+    """
     memory = ConversationBufferWindowMemory(
         memory_key="chat_history", return_messages=True, k=2
         )
@@ -383,7 +435,15 @@ def get_chain_v1(
 def get_chain_RetrievalQASources_v0(
     vectorstore: VectorStore
 ) -> RetrievalQA:
+    """
+    Create a RetrievalQASources instance for question-answering.
 
+    Args:
+        vectorstore (VectorStore): A vector store used for document retrieval.
+
+    Returns:
+        RetrievalQA: A RetrievalQASources
+    """
     llm = ChatOpenAI(
         model_name="gpt-3.5-turbo",
         verbose=True,
