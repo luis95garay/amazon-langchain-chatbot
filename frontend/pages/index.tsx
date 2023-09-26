@@ -107,7 +107,22 @@ export default function Chat(props: { apiKeyApp: string }) {
       }
       return;
     }
-    const data = response.body;
+    // const data = response.body;
+
+    // if (!data) {
+    //   setLoading(false);
+    //   alert('Something went wrong');
+    //   return;
+    // }
+
+    // const reader = data.getReader();
+    // const decoder = new TextDecoder();
+    // const { value, done: doneReading } = await reader.read();
+    // const chunkValue = decoder.decode(value);
+    // setOutputCode(chunkValue)
+
+    // setLoading(false);
+    const data = await response.json();
 
     if (!data) {
       setLoading(false);
@@ -115,11 +130,8 @@ export default function Chat(props: { apiKeyApp: string }) {
       return;
     }
 
-    const reader = data.getReader();
-    const decoder = new TextDecoder();
-    const { value, done: doneReading } = await reader.read();
-    const chunkValue = decoder.decode(value);
-    setOutputCode(chunkValue)
+    const textWithNewlines = data.text;
+    setOutputCode(textWithNewlines);
 
     setLoading(false);
   };

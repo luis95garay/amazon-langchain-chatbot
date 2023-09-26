@@ -30,11 +30,10 @@ def ask_question(
 ):
     # data = qa1.run({"question": params.input})
     result = qa1(params.input, return_only_outputs=True)
-    response_text = result['answer'] + '. Look for more information in: ' \
+    response_text = result['answer'] + '\n\nLook for more information in: \n' \
         + result['sources']
-
-    return response_text.replace('\n', '')
-
+ 
+    return {'text': response_text}
 
 # Option with websocket
 @router.websocket("/chat")
