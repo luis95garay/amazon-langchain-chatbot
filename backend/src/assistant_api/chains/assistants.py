@@ -20,6 +20,7 @@ from langchain.prompts import PromptTemplate
 from langchain.chains.router.llm_router import (
     LLMRouterChain, RouterOutputParser
 )
+from langchain.callbacks import AsyncIteratorCallbackHandler
 
 from .prompt_templates import (
     MULTI_PROMPT_ROUTER_TEMPLATE
@@ -448,6 +449,35 @@ def get_chain_RetrievalQASources_v0(
         model_name="gpt-3.5-turbo",
         verbose=True,
         max_retries=1
+    )
+
+    qa = RetrievalQAWithSourcesChain.from_chain_type(
+        llm=llm,
+        retriever=vectorstore.as_retriever(search_kwargs={"k": 5}),
+        chain_type="stuff",
+        return_source_documents=True,
+    )
+    return qa
+
+
+def get_chain_RetrievalQASources_v1(
+    vectorstore: VectorStore,
+    callback
+) -> RetrievalQA:
+    """
+    Create a RetrievalQASources instance for question-answering.
+
+    Args:
+        vectorstore (VectorStore): A vector store used for document retrieval.
+
+    Returns:
+        RetrievalQA: A RetrievalQASources
+    """
+    llm = ChatOpenAI(
+        model_name="gpt-3.5-turbo",
+        streaming=True,
+        temperature=0,
+        callbacks=[callback]
     )
 
     qa = RetrievalQAWithSourcesChain.from_chain_type(

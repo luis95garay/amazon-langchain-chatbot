@@ -87,11 +87,13 @@ export default function Chat(props: { apiKeyApp: string }) {
       apiKey,
     };
 
-    const response = await fetch('http://127.0.0.1:9001/request/chat', {
+    // const response = await fetch('http://127.0.0.1:9001/request/chat', {
+    const response = await fetch('http://127.0.0.1:9001/stream_chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
+      signal: controller.signal,
       body: JSON.stringify({ 
         input: inputCode
       }),
@@ -107,22 +109,8 @@ export default function Chat(props: { apiKeyApp: string }) {
       }
       return;
     }
-    // const data = response.body;
 
-    // if (!data) {
-    //   setLoading(false);
-    //   alert('Something went wrong');
-    //   return;
-    // }
-
-    // const reader = data.getReader();
-    // const decoder = new TextDecoder();
-    // const { value, done: doneReading } = await reader.read();
-    // const chunkValue = decoder.decode(value);
-    // setOutputCode(chunkValue)
-
-    // setLoading(false);
-    const data = await response.json();
+    const data = response.body;
 
     if (!data) {
       setLoading(false);
@@ -130,8 +118,29 @@ export default function Chat(props: { apiKeyApp: string }) {
       return;
     }
 
-    const textWithNewlines = data.text;
-    setOutputCode(textWithNewlines);
+    const reader = data.getReader();
+    const decoder = new TextDecoder();
+    let done = false;
+
+    while (!done) {
+      setLoading(true);
+      const { value, done: doneReading } = await reader.read();
+      done = doneReading;
+      const chunkValue = decoder.decode(value);
+      setOutputCode((prevCode) => prevCode + chunkValue);
+    }
+
+    // setLoading(false);
+    // const data = await response.json();
+
+    // if (!data) {
+    //   setLoading(false);
+    //   alert('Something went wrong');
+    //   return;
+    // }
+
+    // const textWithNewlines = data.text;
+    // setOutputCode(textWithNewlines);
 
     setLoading(false);
   };
