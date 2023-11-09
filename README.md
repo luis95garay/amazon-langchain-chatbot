@@ -1,18 +1,33 @@
-# Amazon Langchain Chatbot 🦜️🔗
+# No One Langchain Chatbot 🦜️🔗
 
-Amazon Langchain Chatbot is a chatbot implementation designed for answering questions related to the [LangChain documentation](https://langchain.readthedocs.io/en/latest/) and the OpenAI API. This chatbot is ingested with Amazon SageMaker documentation in Markdown format.
+No One Chatbot is a chatbot prototype designed for question-answering with custom information. It works as an API service for creating custom vector stores and answering questions. The architecture follows a microservices design.
 
-## Functionalities ✅
+## Features ✅
 
-### 1. Virtual Assistant API
-- Provides a Python-based API for virtual assistant question-answering using FastAPI.
-- It is currenly answering including sources of information. There is exploration code with conversationalretrieval, multirouterchain, pandas agent. 
+### 1. Chatbot Service
 
-### 2. Data Processing and Vectorstore Generation API
-- Offers an API for data processing and the generation of vector stores.
-- Supports the creation of vector stores from various sources including PDFs, DOCX files, plain text, and Markdown.
-- Allows processing of individual files or entire folders.
-- Access the API docs by opening [localhost:9003/docs](http://localhost:9003/docs) in your web browser.
+- **Python-based API**: Provides a Python-based API for virtual assistant question-answering using FastAPI.
+- **Question Answering (POST Endpoint)**: Utilizes a chain for question and answer.
+- **Streaming Response Question Answering (POST Endpoint)**: Uses a chain for streaming answers.
+- **RetrievalQAWithSourcesChain**: Currently, it utilizes RetrievalQAWithSourcesChain without memory as the QA chain. This is valuable when users need links to seek more information. There's ongoing exploration with ConversationalRetrievalChain, QARetrievalChain agents, and memory usage.
+
+### 2. Data Processing Service
+
+- **Python-based API**: Offers an API for data processing and the generation of vector stores using FastAPI.
+- **Vector Store Creation**: Supports the creation of vector stores from various sources, including:
+  - **Online (POST Endpoint)**: Web sources
+  - **Unstructured Files (POST Endpoint)**: PDFs, DOCX files, and plain text.
+  - **Structured Files (POST Endpoint)**: xlsx and csv. This is primarily for text-based question-answering, not statistical analysis.
+- **Consolidation of Vector Stores (POST Endpoint)**: Supports the consolidation of vector stores.
+- **Status of the source processing (GET Endpoint)**: for asking the status of the process if necesary
+
+### 3. Redis
+
+- **In-memory data store**: For handling processing keys
+
+### 4. Frontend
+
+- **Chatbot**: example of Chatbot Service Streaming Response usage.
 
 ## Running the Containers ✅
 
@@ -40,8 +55,8 @@ To run the chatbot, follow these steps:
 
 ![Question 4](frontend/public/img/question4.png)
 
-
 ## How to update the vectorstore
+
 1. Run the request `/text_extraction/folder`
 
 ![Alt text](frontend/public/img/refresh.png)

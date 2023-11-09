@@ -1,25 +1,48 @@
-version: "0"
+version: "2"
 services:
   redis:
     image: redis:latest
+    restart: always
+    command: --port 6382
     ports:
-      - "6379:6379"
+      - "6382:6379"
+    environment:
+      - REDIS_PORT_NUMBER=6382
     volumes:
-      - /backend/data/redis_data:/data
-  chatbot_backend:
-    image: chatbot_backend:latest
+      - /redis_data:/data
+    networks:
+      - chatbot-nw
+  chatbot_engine:
+    image: chatbot_engine:latest
     build:
-      context: backend
+      context: chatbot
       dockerfile: Dockerfile
     ports:
       - "9001:9000"
-      - "9003:9002"
     restart: unless-stopped
-    working_dir: /app/src
+    working_dir: /app
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
-    volumes:
-      - ./backend:/app
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    networks:
+      - chatbot-nw
+  data_processing:
+    image: data_processing:latest
+    build:
+      context: data_processing
+      dockerfile: Dockerfile
+    ports:
+      - "9003:9002"
+    restart: unless-stopped
+    working_dir: /app
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - DATA_PROCESSING_API_KEY=${DATA_PROCESSING_API_KEY}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    networks:
+      - chatbot-nw
   chatbot_frontend:
     image: chatbot_frontend:latest
     build:
@@ -29,3 +52,11 @@ services:
       - "3000:3000"
     restart: unless-stopped
     working_dir: /app
+    networks:
+      - chatbot-nw
+
+networks:
+  proxy:
+    external: true
+  chatbot-nw:
+    driver: bridge
