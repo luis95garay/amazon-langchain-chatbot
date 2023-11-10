@@ -17,7 +17,6 @@ import { useEffect, useState } from 'react';
 import { MdAutoAwesome, MdBolt, MdEdit, MdPerson } from 'react-icons/md';
 import Bg from '../public/img/chat/react.png';
 
-
 export default function Chat(props: { apiKeyApp: string }) {
   // *** If you use .env.local variable for your API key, method which we recommend, use the apiKey variable commented below
   const { apiKeyApp } = props;
@@ -62,10 +61,10 @@ export default function Chat(props: { apiKeyApp: string }) {
     // Chat post conditions(maximum number of characters, valid message etc.)
     const maxCodeLength = model === 'gpt-3.5-turbo' ? 700 : 700;
 
-    if (!apiKeyApp?.includes('sk-') && !apiKey?.includes('sk-')) {
-      alert('Please enter an API key.');
-      return;
-    }
+    // if (!apiKeyApp?.includes('sk-') && !apiKey?.includes('sk-')) {
+    //   alert('Please enter an API key.');
+    //   return;
+    // }
 
     if (!inputCode) {
       alert('Please enter your message.');
@@ -88,16 +87,16 @@ export default function Chat(props: { apiKeyApp: string }) {
     };
 
     // const response = await fetch('http://127.0.0.1:9001/request/chat', {
-    const response = await fetch('http://127.0.0.1:9001/stream_chat', {
+    const response = await fetch('http://3.89.138.166:9001/stream_chat', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       signal: controller.signal,
-      body: JSON.stringify({ 
-        input: inputCode
+      body: JSON.stringify({
+        input: inputCode,
       }),
-      redirect: 'follow'
+      redirect: 'follow',
     });
 
     if (!response.ok) {
@@ -247,7 +246,6 @@ export default function Chat(props: { apiKeyApp: string }) {
               GPT-4
             </Flex>
           </Flex>
-
         </Flex>
         {/* Main Box */}
         <Flex
@@ -358,8 +356,7 @@ export default function Chat(props: { apiKeyApp: string }) {
             _hover={{
               boxShadow:
                 '0px 21px 27px -10px rgba(96, 60, 255, 0.48) !important',
-              bg:
-                'linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF 86.4%) !important',
+              bg: 'linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF 86.4%) !important',
               _disabled: {
                 bg: 'linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF 86.4%)',
               },
@@ -371,7 +368,6 @@ export default function Chat(props: { apiKeyApp: string }) {
             Submit
           </Button>
         </Flex>
-
       </Flex>
     </Flex>
   );
