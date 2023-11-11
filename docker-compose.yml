@@ -55,8 +55,17 @@ services:
     networks:
       - chatbot-nw
 
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    networks:
+      - chatbot-nw
+    depends_on:
+      - chatbot_engine
+    ports:
+      - "80:80"
+
 networks:
-  proxy:
-    external: true
   chatbot-nw:
     driver: bridge

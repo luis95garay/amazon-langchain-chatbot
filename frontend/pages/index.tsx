@@ -87,17 +87,20 @@ export default function Chat(props: { apiKeyApp: string }) {
     };
 
     // const response = await fetch('http://127.0.0.1:9001/request/chat', {
-    const response = await fetch('http://3.89.138.166:9001/stream_chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+    const response = await fetch(
+      'http://noone.myassistantno.xyz:9001/stream_chat',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        signal: controller.signal,
+        body: JSON.stringify({
+          input: inputCode,
+        }),
+        redirect: 'follow',
       },
-      signal: controller.signal,
-      body: JSON.stringify({
-        input: inputCode,
-      }),
-      redirect: 'follow',
-    });
+    );
 
     if (!response.ok) {
       setLoading(false);
