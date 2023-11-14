@@ -168,7 +168,8 @@ class VectorstoreProcessingPipeline:
         with open(temp_file, 'wb') as pickle_file:
             pickle.dump(current_vectorstore, pickle_file)
 
-        object_key = f"{folder}/{name} - {key}.pkl"
+        # object_key = f"{folder}/{name} - {key}.pkl"
+        object_key = f"{folder}/vectorstore.pkl"
         self.s3.upload_file(
             temp_file,
             self.bucket_name,

@@ -16,8 +16,45 @@ import {
 import { useEffect, useState } from 'react';
 import { MdAutoAwesome, MdBolt, MdEdit, MdPerson } from 'react-icons/md';
 import Bg from '../public/img/chat/react.png';
+import AWS from 'aws-sdk';
 
 export default function Chat(props: { apiKeyApp: string }) {
+  const fetchData = async () => {
+    try {
+      const controller = new AbortController();
+      const response = await fetch(
+        'http://noone.myassistantno.xyz:9001/update',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          signal: controller.signal,
+          body: JSON.stringify({
+            file_name: 'vectorstore.pkl',
+          }),
+          redirect: 'follow',
+        },
+      );
+
+      // Handle the response as needed
+      if (response.ok) {
+        const data = await response.json();
+        // Process the data
+      } else {
+        console.error('Error:', response.status, response.statusText);
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+  useEffect(() => {
+    // Function to be executed on page refresh
+    console.log('Page refreshed!');
+    // Add your logic here...
+    fetchData(); // Call the async function
+  }, []);
+
   // *** If you use .env.local variable for your API key, method which we recommend, use the apiKey variable commented below
   const { apiKeyApp } = props;
   // Input States
@@ -54,6 +91,56 @@ export default function Chat(props: { apiKeyApp: string }) {
   const [message, setMessage] = useState<string>('');
   const [response, setResponse] = useState<string>(''); // Store responses from the server
 
+  // S3 bucket handling
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  const handleFileChange = (e) => {
+    setSelectedFile(e.target.files[0]);
+  };
+
+  const handleUpload = async () => {
+    if (selectedFile) {
+      const S3_BUCKET = 'asistente-virtual-no-one';
+      const REGION = 'us-east-1';
+
+      // AWS.config.update({
+      //   accessKeyId: accessKeyId,
+      //   secretAccessKey: secretAccessKey,
+      // });
+
+      const s3 = new AWS.S3({
+        params: { Bucket: S3_BUCKET },
+        region: REGION,
+      });
+
+      const params = {
+        Bucket: S3_BUCKET,
+        Key: `raw/${selectedFile.name}`,
+        Body: selectedFile,
+      };
+
+      var upload = s3
+        .putObject(params)
+        .on('httpUploadProgress', (evt) => {
+          console.log(
+            'Uploading ' + parseInt((evt.loaded * 100) / evt.total) + '%',
+          );
+        })
+        .promise();
+
+      await upload.then((err, data) => {
+        console.log(err);
+        alert('File uploaded successfully.');
+      });
+      fetchData();
+    }
+  };
+
+  // const UploadFile = async () => {
+  //   // Add your logic here...
+  //   fetchData(); // Call the async function
+  // };
+
   const handleTranslate = async () => {
     const apiKey = apiKeyApp;
     setInputOnSubmit(inputCode);
@@ -86,7 +173,7 @@ export default function Chat(props: { apiKeyApp: string }) {
       apiKey,
     };
 
-    // const response = await fetch('http://127.0.0.1:9001/request/chat', {
+    // const response = await fetch('http://127.0.0.1:9001/stream_chat', {
     const response = await fetch(
       'http://noone.myassistantno.xyz:9001/stream_chat',
       {
@@ -182,6 +269,7 @@ export default function Chat(props: { apiKeyApp: string }) {
             mb="20px"
             borderRadius="60px"
           >
+            <input type="file" onChange={handleFileChange} />
             <Flex
               cursor={'pointer'}
               transition="0.3s"
@@ -195,7 +283,7 @@ export default function Chat(props: { apiKeyApp: string }) {
               color={textColor}
               fontSize="18px"
               fontWeight={'700'}
-              onClick={() => setModel('gpt-3.5-turbo')}
+              onClick={handleUpload}
             >
               <Flex
                 borderRadius="full"
@@ -213,7 +301,7 @@ export default function Chat(props: { apiKeyApp: string }) {
                   color={iconColor}
                 />
               </Flex>
-              GPT-3.5
+              Load from document
             </Flex>
             <Flex
               cursor={'pointer'}
@@ -223,7 +311,8 @@ export default function Chat(props: { apiKeyApp: string }) {
               bg={model === 'gpt-4' ? buttonBg : 'transparent'}
               w="164px"
               h="70px"
-              boxShadow={model === 'gpt-4' ? buttonShadow : 'none'}
+              // boxShadow={model === 'gpt-4' ? buttonShadow : 'none'}
+              boxShadow={buttonShadow}
               borderRadius="14px"
               color={textColor}
               fontSize="18px"
@@ -246,7 +335,7 @@ export default function Chat(props: { apiKeyApp: string }) {
                   color={iconColor}
                 />
               </Flex>
-              GPT-4
+              Load from folder
             </Flex>
           </Flex>
         </Flex>

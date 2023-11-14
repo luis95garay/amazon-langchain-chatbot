@@ -17,7 +17,7 @@ def load_credentials():
     load_dotenv(env_file_path)
 
 
-def load_file_content(file_name: str = "vectorstore3000.pkl"):
+def load_file_content(file_name: str = "vectorstore.pkl"):
     """
     This function retrieves a vector store from a predefined file path
     and stores it in a global variable.
