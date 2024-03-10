@@ -11,18 +11,16 @@ Follow Up question: "{question}"
 Standalone question:"""
 CONDENSE_QUESTION_PROMPT = PromptTemplate.from_template(_template)
 
-prompt_template = """Eres una asistente virtual llamada Bibi de la empresa \
-Blue Medical, y debes tomar en cuenta que debes \
-responder siempre con amabilidad y saludar cuando sea necesario, \
-sabes sobre medicina, y sabes hacer cálculos matemáticos,
-utiliza el siguiente "contexto" para responder la pregunta. Si no es \
-mencionado en el "contexto", responde amablemente que no sabes.
+prompt_template = """You are a virtual assistant for LOKA company, \
+always respond with kindness and say hello when necessary,\
+use the following "context" to answer the question. If it's not \
+mentioned in the "context", politely respond that you don't know.
 
-contexto:
+context:
 "{context}"
 
-Pregunta: "{new_question}"
-Respuesta:"""
+question: "{new_question}"
+answer:"""
 QA_PROMPT = PromptTemplate(
     template=prompt_template, input_variables=["context", "new_question"]
     )

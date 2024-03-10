@@ -3,7 +3,6 @@ import asyncio
 import logging
 from typing import AsyncIterable
 import json
-from fastapi.encoders import jsonable_encoder
 from time import time
 from collections import deque
 import pickle
@@ -17,7 +16,7 @@ import redis
 
 from src.callback import StreamingLLMCallbackHandler
 from src.chains.assistants import (
-    get_chain_v0_simple, get_chain_stream, get_chain_scratch_v1, get_chain_scratch_v2
+    get_chain_v0_simple, get_chain_stream, get_chain_from_scratch_stream, get_chain_from_scratch
 )
 from src.schemas import ChatResponse, InputRequest
 from src.db.vectorstoredb import VectorstoreDB
@@ -27,54 +26,16 @@ from constants import REDIS_HOST, REDIS_PORT
 
 router = APIRouter(tags=['virtual_assistant'])
 redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=0)
-# logging.basicConfig(level=logging.WARNING)
 
 
-def get_vectorstore():
-    return VectorstoreDB()
-
-
-class QAImplementation:
-    def __init__(self, vecstore: VectorstoreDB):
-        vecstore = VectorstoreDB('9195173332994997420b3f236e0da21a')
-        self.ask = get_chain_v0_simple(vecstore.vectorstore)
-
-
-def get_qa(vecstore: VectorstoreDB = Depends(get_vectorstore)):
-    return QAImplementation(vecstore)
-
-
-async def send_message(question: str) -> AsyncIterable[str]:
-    callback = AsyncIteratorCallbackHandler()
-    vecstore = VectorstoreDB('9195173332994997420b3f236e0da21a')
-    qa = get_chain_stream(vecstore.vectorstore, callback)
-
-    task = asyncio.create_task(
-        qa.acall({"question": question})
-    )
-
-    try:
-        async for token in callback.aiter():
-            yield token
-    except Exception as e:
-        print(f"Caught exception: {e}")
-    finally:
-        callback.done.set()
-
-    await task
-
-
-# Simple request
 @router.post("/chat")
 async def ask_question(
-    # params: InputRequest
     input: str,
     user_id: str
 ):
     """Handle a POST request to ask a question and return a response."""
     try:
-        memory_chain, question_chain = get_chain_scratch_v2()
-        # question = params.input
+        memory_chain, question_chain = get_chain_from_scratch()
         question = input
 
         # Retrieve the pickled data from Redis
@@ -92,11 +53,9 @@ async def ask_question(
                     ],
                     maxlen=4
                 )
-            # logging.warning(len(memory))
         else:
             memory = []
 
-        # logging.info(len(memory))
         if memory:
             new_question = memory_chain.run(
                 {
@@ -144,27 +103,19 @@ async def ask_question(
         return {'text': error_message, 'source': None}
 
 
-# Stream request
-@router.post("/stream_chat/")
-async def stream_chat(message: InputRequest):
-    generator = send_message(message.input)
-    return StreamingResponse(generator, media_type="text/event-stream")
-
-
 @router.websocket("/chat")
 async def websocket_endpoint(
         websocket: WebSocket
         ):
     await websocket.accept()
     stream_handler = StreamingLLMCallbackHandler(websocket)
-    memory_chain, question_chain = get_chain_scratch_v1(stream_handler)
+    memory_chain, question_chain = get_chain_from_scratch_stream(stream_handler)
 
     while True:
         try:
             # Receive and send back the client message
             question = await websocket.receive_text()
-            start_time = time()
-            question = f'{{"message": "{question.strip()}", "user": "operador@mibluemedical.com", "name": "LuisG", "skill": "CAS", "area": "Vivolife", "hash": "9195173332994997420b3f236e0da21a"}}'
+            question = f'{{"message": "{question.strip()}", "user": "12355434", "hash": "9195173332994997420b3f236e0da21a"}}'
             question_dict = json.loads(question)
             question = question_dict['message']
 
@@ -252,83 +203,28 @@ async def websocket_endpoint(
             await websocket.send_json(resp.dict())
 
 
-# @router.websocket("/chat")
-# async def websocket_endpoint(
-#         websocket: WebSocket
-#         ):
-#     await websocket.accept()
-#     question_handler = QuestionGenCallbackHandler(websocket)
-#     stream_handler = StreamingLLMCallbackHandler(websocket)
-#     servicesdb = ServicesDB()
-#     vecstore = VectorstoreDB()
-#     qa_chain = get_chain_v0(
-#         vecstore.vectorstore, question_handler, stream_handler
-#     )
+# Stream request
+async def send_message(question: str) -> AsyncIterable[str]:
+    callback = AsyncIteratorCallbackHandler()
+    vecstore = VectorstoreDB('9195173332994997420b3f236e0da21a')
+    qa = get_chain_stream(vecstore.vectorstore, callback)
 
-#     while True:
-#         try:
-#             # Receive and send back the client message
-#             question = await websocket.receive_text()
-#             start_time = time()
-#             question_dict = json.loads(question)
-#             question = question_dict['message']
+    task = asyncio.create_task(
+        qa.acall({"question": question})
+    )
 
-#             is_query, clean_question = servicesdb.run_query(question)
+    try:
+        async for token in callback.aiter():
+            yield token
+    except Exception as e:
+        print(f"Caught exception: {e}")
+    finally:
+        callback.done.set()
 
-#             if is_query:
-#                 message = question
-#                 tipo = "shortcut"
-#             else:
-#                 message = clean_question
-#                 tipo = "openai"
+    await task
 
-#             resp = ChatResponse(
-#                       sender="you", message=message, type="stream"
-#                       )
-#             await websocket.send_json(resp.dict())
 
-#             # Construct a response
-#             start_resp = ChatResponse(sender="bot", message="", type="start")
-#             await websocket.send_json(start_resp.dict())
-
-#             if is_query:
-#                 # Opción 3: mandar literal el texto
-#                 resp = ChatResponse(
-#                           sender="bot",
-#                           message="\n" + clean_question,
-#                           type="stream"
-#                           )
-#                 await websocket.send_json(resp.dict())
-#             else:
-#                 await qa_chain.acall(
-#                     {"question": clean_question}
-#                 )
-#             # Record the end time
-#             end_time = time()
-
-#             # Calculate the elapsed time
-#             elapsed_time = end_time - start_time
-
-#             usage = UsageDB()
-#             usage.insert(
-#                 question_dict['user'], question_dict['name'],
-#                 question_dict['skill'], question_dict['area'], tipo, message,
-#                 servicesdb.categoria, servicesdb.nombre,
-#                 servicesdb.subcategoria, servicesdb.servicio,
-#                 elapsed_time
-#                 )
-#             servicesdb.clear_attributes()
-
-#             end_resp = ChatResponse(sender="bot", message="", type="end")
-#             await websocket.send_json(end_resp.dict())
-#         except WebSocketDisconnect:
-#             logging.info("websocket disconnect")
-#             break
-#         except Exception as e:
-#             logging.error(e)
-#             resp = ChatResponse(
-#                 sender="bot",
-#                 message="Sorry, something went wrong. Try again.",
-#                 type="error",
-#             )
-#             await websocket.send_json(resp.dict())
+@router.post("/stream_chat/")
+async def stream_chat(message: InputRequest):
+    generator = send_message(message.input)
+    return StreamingResponse(generator, media_type="text/event-stream")

@@ -22,8 +22,7 @@ from langchain.agents.agent_toolkits import create_python_agent
 from langchain.tools.python.tool import PythonREPLTool
 from langchain.chains.combine_documents.stuff import StuffDocumentsChain
 
-# from langchain.chains.chat_vector_db.prompts import (
-# CONDENSE_QUESTION_PROMPT, QA_PROMPT)
+
 from .custom_chains import (
     CustomConversationalRetrievalChain, MyMultiPromptChain,
     custom_create_pandas_dataframe_agent
@@ -216,7 +215,6 @@ def get_chain_wth_memory(
         prompt=CONDENSE_QUESTION_PROMPT,
         callback_manager=manager,
         verbose=True,
-        # return_final_only=False
     )
 
     llm_chain = LLMChain(
@@ -224,7 +222,6 @@ def get_chain_wth_memory(
         prompt=QA_PROMPT,
         verbose=False,
         callback_manager=manager,
-        # return_final_only=False
     )
 
     doc_chain = StuffDocumentsChain(
@@ -233,14 +230,6 @@ def get_chain_wth_memory(
         verbose=False,
         callback_manager=manager
     )
-    # doc_chain = load_qa_chain(
-    #     streaming_llm,
-    #     chain_type="stuff",
-    #     prompt=QA_PROMPT,
-    #     callback_manager=manager,
-    #     verbose=True,
-    #     input_key="new_question"
-    # )
 
     qa = ConversationalRetrievalChain(
         retriever=vectorstore.as_retriever(
@@ -256,7 +245,7 @@ def get_chain_wth_memory(
     return qa
 
 
-def get_chain_scratch_v1(
+def get_chain_from_scratch_stream(
     stream_handler
 ) -> LLMChain:
     """
@@ -302,7 +291,7 @@ def get_chain_scratch_v1(
     return memory_chain, question_chain
 
 
-def get_chain_scratch_v2() -> LLMChain:
+def get_chain_from_scratch() -> LLMChain:
     """
     Create a LLMChain instance for question-answering
     and other for memory handling
@@ -531,7 +520,6 @@ def get_agentcsv(
         model="gpt-3.5-turbo-0613",
         callback_manager=stream_manager,
         )
-    # df = pd.read_csv(csv_path)
 
     agent = custom_create_pandas_dataframe_agent(
         llm,
@@ -852,11 +840,9 @@ def get_chain_RetrievalQASources_v0(
 def get_simple_assistant(
         stream_handler
 ):
-    # stream_manager = AsyncCallbackManager([stream_handler])
     chat = ChatOpenAI(
         temperature=1,
         streaming=False,
         model="gpt-3.5-turbo-0613",
-        # callback_manager=stream_manager,
     )
     return chat

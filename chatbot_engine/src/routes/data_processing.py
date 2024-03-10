@@ -36,15 +36,11 @@ async def create_vectorstore():
     )
     data = text_splitter.split_documents(data)
 
-    # texts = [doc.page_content for doc in data]
-    # metadatas = [doc.metadata for doc in data]
-
     embeddings = OpenAIEmbeddings()
-    # current_vectorstore = FAISS.from_texts(texts, embeddings, metadatas=metadatas)
     current_vectorstore = FAISS.from_documents(data, embeddings)
 
     # # Save vectorstore
-    vs_name = "prueba.pkl"
+    vs_name = "sagemaker_documentation.pkl"
     with open(vs_name, "wb") as f:
         pickle.dump(current_vectorstore, f)
     

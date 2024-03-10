@@ -6,7 +6,7 @@ import time
 
 user_id = str(uuid.uuid4())[:8]
 
-st.title("LOKA Chatbot")
+st.title("NoONE Chatbot")
 
 with st.sidebar:
     # Add elements to the sidebar here
