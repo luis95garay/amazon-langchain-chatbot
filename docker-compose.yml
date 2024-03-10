@@ -1,4 +1,4 @@
-version: "2"
+version: "3"
 services:
   redis:
     image: redis:latest
@@ -9,13 +9,13 @@ services:
     environment:
       - REDIS_PORT_NUMBER=6382
     volumes:
-      - /redis_data:/data
+      - redis_data:/data
     networks:
-      - chatbot-nw
-  chatbot_engine:
+      - asistente
+  chatbot:
     image: chatbot_engine:latest
     build:
-      context: chatbot
+      context: chatbot_engine
       dockerfile: Dockerfile
     ports:
       - "9001:9000"
@@ -23,49 +23,32 @@ services:
     working_dir: /app
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - BUCKET_NAME=${BUCKET_NAME}
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
     networks:
-      - chatbot-nw
-  data_processing:
-    image: data_processing:latest
-    build:
-      context: data_processing
-      dockerfile: Dockerfile
-    ports:
-      - "9003:9002"
-    restart: unless-stopped
-    working_dir: /app
-    environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - DATA_PROCESSING_API_KEY=${DATA_PROCESSING_API_KEY}
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-    networks:
-      - chatbot-nw
-  chatbot_frontend:
-    image: chatbot_frontend:latest
+      - asistente
+  frontend:
+    image: frontend:latest
     build:
       context: frontend
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
-    restart: unless-stopped
-    working_dir: /app
+      - "8501:8501"
+    restart: always
     networks:
-      - chatbot-nw
-
-  nginx:
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile
-    networks:
-      - chatbot-nw
+      - asistente
     depends_on:
-      - chatbot_engine
-    ports:
-      - "80:80"
+      - chatbot
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - BUCKET_NAME=${BUCKET_NAME}
 
 networks:
-  chatbot-nw:
+  asistente:
     driver: bridge
+
+volumes:
+  redis_data:
+    driver: local
