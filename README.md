@@ -41,6 +41,29 @@ NoONE Chatbot is a chatbot prototype designed for question-answering with custom
 In this case, we must upload all the updated .md files
 ![Alt text](frontend/public/updatedoc.png)
 
+## Evaluating RAG solution ✅
+
+When assessing the performance of a RAG (Retrieval-Augmented Generation) chatbot, various options are available, including RAGAs, RAG triad of metrics, ROUGE, and more. In this particular case, the focus is on RAGAs, which encompasses the following key metrics:
+
+- Answer relevance: Evaluates the extent to which the provided answers address the specific queries
+- Context relevance: Examines the importance of contextual information in responding to queries
+- Faithfulness: Gauges the coherence and alignment of the generated answers with the generated chunks.
+
+### Questions to evaluate
+
+To illustrate the evaluation process, the following sample questions have been chosen:
+
+1. What is SageMaker?
+2. What are all AWS regions where AWS SageMaker is available?
+3. How to check if an endpoint is KMS encrypted?
+4. What are SageMaker Geospatial capabilities?
+
+### Results
+
+![RAGAs](frontend/public/evaluation.png)
+
+In this brief comparison of chatbots, opting for Custom Chain3 (with a chunk size of 2000) emerges as a favorable choice due to its consistently higher scores across all metrics. However, it is essential to emphasize that our journey doesn't end here; continuous iteration is crucial. Integrating tools such as mlflow for score tracking will further enhance our ability to monitor and refine the performance of our LLM solution, comparing more variables like temperature, chunk_size, chunk_overlap, k numbers of chunks retrieved, and also testing advance RAG solutions like Sentence Window Retrieval, or Auto-Merging Retrieval.
+
 ## Running project locally ✅
 
 To run the chatbot, follow these steps:
