@@ -1,10 +1,9 @@
 import os
 from pathlib import Path
 import pickle
-from fastapi import Request
 from fastapi.routing import APIRouter
-from langchain.document_loaders import TextLoader, S3DirectoryLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter, MarkdownTextSplitter
+from langchain.document_loaders import TextLoader
+from langchain.text_splitter import MarkdownTextSplitter
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores.faiss import FAISS
 
@@ -31,7 +30,7 @@ async def create_vectorstore():
         os.remove
 
     text_splitter = MarkdownTextSplitter(
-        chunk_size=3000,
+        chunk_size=2000,
         chunk_overlap=200,
     )
     data = text_splitter.split_documents(data)
