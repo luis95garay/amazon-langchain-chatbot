@@ -3,8 +3,7 @@ import streamlit as st
 from utils import get_response, load_files_to_s3, update_vectorstore
 import time
 
-
-user_id = str(uuid.uuid4())[:8]
+user_id = '234580980435'
 
 st.title("NoONE Chatbot")
 

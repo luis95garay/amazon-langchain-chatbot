@@ -6,10 +6,9 @@ import boto3
 import redis
 
 from src.exceptions.pre_processing import NotFoundException
-from constants import REDIS_HOST, REDIS_PORT
 
 
-redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=0)
+redis_client = redis.Redis(host=os.getenv('REDIS_HOST'), port=os.getenv('REDIS_PORT'), db=0)
 
 
 def load_credentials():
@@ -25,7 +24,6 @@ def load_file_to_redis(s3_file_path: str, file_hash: str):
     This function retrieves a vector store from a predefined file path
     and stores it in a global variable.
     """
-    load_credentials()
 
     s3 = boto3.client(
         's3',

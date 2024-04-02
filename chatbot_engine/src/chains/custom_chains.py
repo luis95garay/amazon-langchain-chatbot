@@ -2,7 +2,7 @@ from typing import Mapping, List, Union, Dict, Any, Optional, Tuple
 import inspect
 
 from langchain.chains import (
-    ConversationalRetrievalChain, LLMChain, MultiRouteChain
+    ConversationalRetrievalChain, MultiRouteChain
 )
 from langchain.callbacks.manager import (
     AsyncCallbackManagerForChainRun,
@@ -10,15 +10,7 @@ from langchain.callbacks.manager import (
 )
 from langchain.schema.messages import BaseMessage
 from langchain.agents.agent import AgentExecutor
-from langchain.schema.language_model import BaseLanguageModel
-from langchain.agents.types import AgentType
-from langchain.callbacks.base import BaseCallbackManager
-from langchain.agents.agent import BaseSingleActionAgent
-from langchain.agents.agent_toolkits.pandas.base import (
-    _get_functions_prompt_and_tools, _get_prompt_and_tools
-)
-from langchain.agents.mrkl.base import ZeroShotAgent
-from langchain.agents.openai_functions_agent.base import OpenAIFunctionsAgent
+
 
 
 CHAT_TURN_TYPE = Union[Tuple[str, str], BaseMessage]
@@ -169,78 +161,78 @@ class MyMultiPromptChain(MultiRouteChain):
         return ['output']
 
 
-def custom_create_pandas_dataframe_agent(
-    llm: BaseLanguageModel,
-    df: Any,
-    agent_type: AgentType = AgentType.ZERO_SHOT_REACT_DESCRIPTION,
-    callback_manager: Optional[BaseCallbackManager] = None,
-    prefix: Optional[str] = None,
-    suffix: Optional[str] = None,
-    input_variables: Optional[List[str]] = None,
-    verbose: bool = False,
-    return_intermediate_steps: bool = False,
-    max_iterations: Optional[int] = 15,
-    max_execution_time: Optional[float] = None,
-    early_stopping_method: str = "force",
-    agent_executor_kwargs: Optional[Dict[str, Any]] = None,
-    include_df_in_prompt: Optional[bool] = True,
-    number_of_head_rows: int = 5,
-    **kwargs: Dict[str, Any],
-) -> AgentExecutor:
-    """Create a custom improved pandas dataframe AgentExecutor"""
-    agent: BaseSingleActionAgent
-    if agent_type == AgentType.ZERO_SHOT_REACT_DESCRIPTION:
-        prompt, tools = _get_prompt_and_tools(
-            df,
-            prefix=prefix,
-            suffix=suffix,
-            input_variables=input_variables,
-            include_df_in_prompt=include_df_in_prompt,
-            number_of_head_rows=number_of_head_rows,
-        )
-        llm_chain = LLMChain(
-            llm=llm,
-            prompt=prompt,
-            callback_manager=callback_manager,
-        )
-        tool_names = [tool.name for tool in tools]
-        agent = ZeroShotAgent(
-            llm_chain=llm_chain,
-            allowed_tools=tool_names,
-            callback_manager=callback_manager,
-            **kwargs,
-        )
-    elif agent_type == AgentType.OPENAI_FUNCTIONS:
-        _prompt, tools = _get_functions_prompt_and_tools(
-            df,
-            prefix=prefix,
-            suffix=suffix,
-            input_variables=input_variables,
-            include_df_in_prompt=include_df_in_prompt,
-            number_of_head_rows=number_of_head_rows,
-        )
-        _prompt.messages[0].content += "\nIf they ask for prices, answer \
-            always in Quetzales (Q)\nAlways run the python code\nAlways \
-            run the python code\nDo not explain the python code"
-        agent = OpenAIFunctionsAgent(
-            llm=llm,
-            prompt=_prompt,
-            tools=tools,
-            callback_manager=callback_manager,
-            **kwargs,
-        )
-    else:
-        raise ValueError(
-            f"Agent type {agent_type} not supported at the moment."
-        )
-    return AgentExecutor.from_agent_and_tools(
-        agent=agent,
-        tools=tools,
-        callback_manager=callback_manager,
-        verbose=verbose,
-        return_intermediate_steps=return_intermediate_steps,
-        max_iterations=max_iterations,
-        max_execution_time=max_execution_time,
-        early_stopping_method=early_stopping_method,
-        **(agent_executor_kwargs or {}),
-    )
+# def custom_create_pandas_dataframe_agent(
+#     llm: BaseLanguageModel,
+#     df: Any,
+#     agent_type: AgentType = AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+#     callback_manager: Optional[BaseCallbackManager] = None,
+#     prefix: Optional[str] = None,
+#     suffix: Optional[str] = None,
+#     input_variables: Optional[List[str]] = None,
+#     verbose: bool = False,
+#     return_intermediate_steps: bool = False,
+#     max_iterations: Optional[int] = 15,
+#     max_execution_time: Optional[float] = None,
+#     early_stopping_method: str = "force",
+#     agent_executor_kwargs: Optional[Dict[str, Any]] = None,
+#     include_df_in_prompt: Optional[bool] = True,
+#     number_of_head_rows: int = 5,
+#     **kwargs: Dict[str, Any],
+# ) -> AgentExecutor:
+#     """Create a custom improved pandas dataframe AgentExecutor"""
+#     agent: BaseSingleActionAgent
+#     if agent_type == AgentType.ZERO_SHOT_REACT_DESCRIPTION:
+#         prompt, tools = _get_prompt_and_tools(
+#             df,
+#             prefix=prefix,
+#             suffix=suffix,
+#             input_variables=input_variables,
+#             include_df_in_prompt=include_df_in_prompt,
+#             number_of_head_rows=number_of_head_rows,
+#         )
+#         llm_chain = LLMChain(
+#             llm=llm,
+#             prompt=prompt,
+#             callback_manager=callback_manager,
+#         )
+#         tool_names = [tool.name for tool in tools]
+#         agent = ZeroShotAgent(
+#             llm_chain=llm_chain,
+#             allowed_tools=tool_names,
+#             callback_manager=callback_manager,
+#             **kwargs,
+#         )
+#     elif agent_type == AgentType.OPENAI_FUNCTIONS:
+#         _prompt, tools = _get_functions_prompt_and_tools(
+#             df,
+#             prefix=prefix,
+#             suffix=suffix,
+#             input_variables=input_variables,
+#             include_df_in_prompt=include_df_in_prompt,
+#             number_of_head_rows=number_of_head_rows,
+#         )
+#         _prompt.messages[0].content += "\nIf they ask for prices, answer \
+#             always in Quetzales (Q)\nAlways run the python code\nAlways \
+#             run the python code\nDo not explain the python code"
+#         agent = OpenAIFunctionsAgent(
+#             llm=llm,
+#             prompt=_prompt,
+#             tools=tools,
+#             callback_manager=callback_manager,
+#             **kwargs,
+#         )
+#     else:
+#         raise ValueError(
+#             f"Agent type {agent_type} not supported at the moment."
+#         )
+#     return AgentExecutor.from_agent_and_tools(
+#         agent=agent,
+#         tools=tools,
+#         callback_manager=callback_manager,
+#         verbose=verbose,
+#         return_intermediate_steps=return_intermediate_steps,
+#         max_iterations=max_iterations,
+#         max_execution_time=max_execution_time,
+#         early_stopping_method=early_stopping_method,
+#         **(agent_executor_kwargs or {}),
+#     )

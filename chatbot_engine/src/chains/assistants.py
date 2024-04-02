@@ -9,7 +9,7 @@ from langchain.chains import (
 from langchain.chains.llm import LLMChain
 from langchain.chains.base import Chain
 from langchain.chains.question_answering import load_qa_chain
-from langchain.chat_models import ChatOpenAI
+from langchain_community.chat_models import ChatOpenAI
 from langchain.vectorstores.base import VectorStore
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.agents.agent import AgentExecutor
@@ -18,14 +18,13 @@ from langchain.prompts import PromptTemplate
 from langchain.chains.router.llm_router import (
     LLMRouterChain, RouterOutputParser
 )
-from langchain.agents.agent_toolkits import create_python_agent
-from langchain.tools.python.tool import PythonREPLTool
+# from langchain.agents.agent_toolkits import create_python_agent
+# from langchain.tools.python.tool import PythonREPLTool
 from langchain.chains.combine_documents.stuff import StuffDocumentsChain
 
 
 from .custom_chains import (
-    CustomConversationalRetrievalChain, MyMultiPromptChain,
-    custom_create_pandas_dataframe_agent
+    CustomConversationalRetrievalChain, MyMultiPromptChain
 )
 from .prompt_templates import (
     QA_PROMPT, CONDENSE_QUESTION_PROMPT,
@@ -320,7 +319,7 @@ def get_chain_from_scratch() -> LLMChain:
         llm=llm,
         prompt=CONDENSE_QUESTION_PROMPT,
         output_key="new_question",
-        verbose=False
+        verbose=True
     )
 
     question_chain = LLMChain(
@@ -496,72 +495,72 @@ def get_chain_RetrievalQA(
     return qa
 
 
-def get_agentcsv(
-        df: pd.DataFrame,
-        stream_handler
-) -> AgentExecutor:
-    """
-    Create a AgentExecutor instance for question-answering from a csv file
-    and considering streaming
+# def get_agentcsv(
+#         df: pd.DataFrame,
+#         stream_handler
+# ) -> AgentExecutor:
+#     """
+#     Create a AgentExecutor instance for question-answering from a csv file
+#     and considering streaming
 
-    Args:
-        df (pd.DataFrame): the dataframe to use for the agent
-        stream_handler (AsyncCallbackHandler)
+#     Args:
+#         df (pd.DataFrame): the dataframe to use for the agent
+#         stream_handler (AsyncCallbackHandler)
 
-    Returns:
-        AgentExecutor: A AgentExecutor
-    """
-    manager = AsyncCallbackManager([])
-    stream_manager = AsyncCallbackManager([stream_handler])
-    # Create agent
-    llm = ChatOpenAI(
-        streaming=True,
-        temperature=0,
-        model="gpt-3.5-turbo-0613",
-        callback_manager=stream_manager,
-        )
+#     Returns:
+#         AgentExecutor: A AgentExecutor
+#     """
+#     manager = AsyncCallbackManager([])
+#     stream_manager = AsyncCallbackManager([stream_handler])
+#     # Create agent
+#     llm = ChatOpenAI(
+#         streaming=True,
+#         temperature=0,
+#         model="gpt-3.5-turbo-0613",
+#         callback_manager=stream_manager,
+#         )
 
-    agent = custom_create_pandas_dataframe_agent(
-        llm,
-        df,
-        verbose=False,
-        agent_type=AgentType.OPENAI_FUNCTIONS,
-        callback_manager=manager
-    )
+#     agent = custom_create_pandas_dataframe_agent(
+#         llm,
+#         df,
+#         verbose=False,
+#         agent_type=AgentType.OPENAI_FUNCTIONS,
+#         callback_manager=manager
+#     )
 
-    return agent
+#     return agent
 
 
-def get_agentpython(
-        stream_handler
-) -> AgentExecutor:
-    """
-    Create a AgentExecutor instance for math question answering
+# def get_agentpython(
+#         stream_handler
+# ) -> AgentExecutor:
+#     """
+#     Create a AgentExecutor instance for math question answering
 
-    Args:
-        stream_handler (AsyncCallbackHandler)
+#     Args:
+#         stream_handler (AsyncCallbackHandler)
 
-    Returns:
-        AgentExecutor: A AgentExecutor
-    """
-    manager = AsyncCallbackManager([])
-    stream_manager = AsyncCallbackManager([stream_handler])
+#     Returns:
+#         AgentExecutor: A AgentExecutor
+#     """
+#     manager = AsyncCallbackManager([])
+#     stream_manager = AsyncCallbackManager([stream_handler])
 
-    llm = ChatOpenAI(
-        streaming=True,
-        temperature=0,
-        model="gpt-3.5-turbo-0613",
-        callback_manager=stream_manager,
-        )
-    agent = create_python_agent(
-        llm=llm,
-        tool=PythonREPLTool(),
-        verbose=False,
-        agent_type=AgentType.OPENAI_FUNCTIONS,
-        agent_executor_kwargs={"handle_parsing_errors": True},
-        callback_manager=manager
-    )
-    return agent
+#     llm = ChatOpenAI(
+#         streaming=True,
+#         temperature=0,
+#         model="gpt-3.5-turbo-0613",
+#         callback_manager=stream_manager,
+#         )
+#     agent = create_python_agent(
+#         llm=llm,
+#         tool=PythonREPLTool(),
+#         verbose=False,
+#         agent_type=AgentType.OPENAI_FUNCTIONS,
+#         agent_executor_kwargs={"handle_parsing_errors": True},
+#         callback_manager=manager
+#     )
+#     return agent
 
 
 def get_simple_math(

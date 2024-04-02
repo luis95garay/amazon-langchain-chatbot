@@ -11,7 +11,7 @@ def parse_response(response:dict):
     return text
 
 def get_response(body: any, user_id: any):
-    url = "http://chatbot:9000/chat"
+    url = "http://" + os.getenv("CHATBOT_HOST") + ":" + os.getenv("CHATBOT_PORT") + "/chat"
     headers = {"Content-type": "application/json"}
     response = requests.request("POST", url, headers=headers, params={'input': body, 'user_id': user_id})
     if response.status_code == 200:
@@ -24,11 +24,10 @@ def get_response(body: any, user_id: any):
         return None
 
 def update_vectorstore():
-    url = "http://chatbot:9000/create_vectorstore"
+    url = "http://" + os.getenv("CHATBOT_HOST") + ":" + os.getenv("CHATBOT_PORT") + "/create_vectorstore"
     headers = {"Content-type": "application/json"}
     response = requests.request("GET", url, headers=headers)
     if response.status_code == 200:
-        # response_data = response.json()
         return {'data': 'Updated ok'}
         
     else:
