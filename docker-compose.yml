@@ -26,6 +26,10 @@ services:
       - BUCKET_NAME=${BUCKET_NAME}
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - QDRANT_URL=${QDRANT_URL}
+      - QDRANT_KEY=${QDRANT_KEY}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
     networks:
       - asistente
   frontend:
@@ -44,6 +48,8 @@ services:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - BUCKET_NAME=${BUCKET_NAME}
+      - CHATBOT_HOST=${CHATBOT_HOST}
+      - CHATBOT_PORT=${CHATBOT_PORT}
 
 networks:
   asistente:

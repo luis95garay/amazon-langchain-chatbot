@@ -11,14 +11,9 @@ COPY requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY src ./src
-COPY constants.py ./constants.py
 
 # Install any dependencies specified in the requirements file
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Navigate to the desired directory and run the shell commands
-RUN cd /usr/local/lib/python3.9/site-packages/faiss && \
-    ln -s -f swigfaiss.py swigfaiss_avx2.py
 
 # Expose the ports for each API (adjust the port numbers as needed)
 EXPOSE 9000

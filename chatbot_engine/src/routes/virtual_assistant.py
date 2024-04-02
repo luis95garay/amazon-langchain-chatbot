@@ -1,4 +1,5 @@
 """Main entrypoint for the app."""
+import os
 import asyncio
 import logging
 from typing import AsyncIterable
@@ -8,24 +9,35 @@ from collections import deque
 import pickle
 
 # import pandas as pd
-from fastapi import WebSocket, WebSocketDisconnect, Depends
+from fastapi import WebSocket, WebSocketDisconnect
 from fastapi.routing import APIRouter
 from fastapi.responses import StreamingResponse
 from langchain.callbacks import AsyncIteratorCallbackHandler
 import redis
+from qdrant_client import QdrantClient
+from langchain_community.vectorstores import Qdrant
+from langchain_community.embeddings import OpenAIEmbeddings
 
 from src.callback import StreamingLLMCallbackHandler
 from src.chains.assistants import (
     get_chain_v0_simple, get_chain_stream, get_chain_from_scratch_stream, get_chain_from_scratch
 )
 from src.schemas import ChatResponse, InputRequest
-from src.db.vectorstoredb import VectorstoreDB
 from src.utils import format_conversation, format_docs
-from constants import REDIS_HOST, REDIS_PORT
 
 
 router = APIRouter(tags=['virtual_assistant'])
-redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=0)
+redis_client = redis.Redis(host=os.getenv('REDIS_HOST'), port=os.getenv('REDIS_PORT'), db=0)
+
+client = QdrantClient(
+    url=os.getenv('QDRANT_URL'),
+    api_key=os.getenv('QDRANT_KEY'),
+    https=True,
+)
+
+embeddings = OpenAIEmbeddings()
+collection_name = "myvectorstore"
+qdrant = Qdrant(client, collection_name, embeddings=embeddings)
 
 
 @router.post("/chat")
@@ -65,8 +77,7 @@ async def ask_question(
             )
         else:
             new_question = question
-        vecstore = VectorstoreDB('9195173332994997420b3f236e0da21a')
-        docs = vecstore.vectorstore.similarity_search(
+        docs = qdrant.similarity_search(
             new_question, k=4
         )
         result = question_chain.run(
@@ -115,7 +126,7 @@ async def websocket_endpoint(
         try:
             # Receive and send back the client message
             question = await websocket.receive_text()
-            question = f'{{"message": "{question.strip()}", "user": "12355434", "hash": "9195173332994997420b3f236e0da21a"}}'
+            question = f'{{"message": "{question.strip()}", "user": "12355434"}}'
             question_dict = json.loads(question)
             question = question_dict['message']
 
@@ -158,8 +169,7 @@ async def websocket_endpoint(
                 )
             else:
                 new_question = question
-            vecstore = VectorstoreDB(question_dict['hash'])
-            docs = await vecstore.vectorstore.asimilarity_search(
+            docs = await qdrant.asimilarity_search(
                 new_question, k=4
             )
             result = await question_chain.acall(
@@ -206,8 +216,7 @@ async def websocket_endpoint(
 # Stream request
 async def send_message(question: str) -> AsyncIterable[str]:
     callback = AsyncIteratorCallbackHandler()
-    vecstore = VectorstoreDB('9195173332994997420b3f236e0da21a')
-    qa = get_chain_stream(vecstore.vectorstore, callback)
+    qa = get_chain_stream(qdrant, callback)
 
     task = asyncio.create_task(
         qa.acall({"question": question})

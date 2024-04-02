@@ -1,15 +1,12 @@
 import os
 from pathlib import Path
-import pickle
 from fastapi.routing import APIRouter
-from langchain.document_loaders import TextLoader
-from langchain.text_splitter import MarkdownTextSplitter
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores.faiss import FAISS
-
+from langchain_community.document_loaders import TextLoader
+from langchain_text_splitters.markdown import MarkdownTextSplitter
+from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_community.vectorstores import Qdrant
 from .response import Responses
-from src.utils import load_vectorstore_to_s3, save_files_locally
-from src.routes.index import update_all
+from src.utils import save_files_locally
 
 
 router = APIRouter(tags=['data_processing'])
@@ -19,15 +16,14 @@ router = APIRouter(tags=['data_processing'])
 async def create_vectorstore():
 
     save_files_locally()
-    
+
     markdown_path = Path(__file__).parent.parent
     markdown_path = markdown_path / 'chatbot_data'
-    print(print(markdown_path))
     data = []
     for file in markdown_path.glob('*.md'):
         loader = TextLoader(str(file))
         data += loader.load()
-        os.remove
+        os.remove(str(file))
 
     text_splitter = MarkdownTextSplitter(
         chunk_size=2000,
@@ -36,14 +32,15 @@ async def create_vectorstore():
     data = text_splitter.split_documents(data)
 
     embeddings = OpenAIEmbeddings()
-    current_vectorstore = FAISS.from_documents(data, embeddings)
 
-    # # Save vectorstore
-    vs_name = "sagemaker_documentation.pkl"
-    with open(vs_name, "wb") as f:
-        pickle.dump(current_vectorstore, f)
-    
-    load_vectorstore_to_s3(vs_name)
-    os.remove(vs_name)
-    update_all()
+    Qdrant.from_documents(
+        data,
+        embeddings,
+        url=os.getenv("QDRANT_URL"),
+        prefer_grpc=True,
+        api_key=os.getenv("QDRANT_KEY"),
+        collection_name="myvectorstore",
+        force_recreate=True,
+    )
+
     return Responses.ok("Vectorstore updated")
