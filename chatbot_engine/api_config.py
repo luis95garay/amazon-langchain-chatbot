@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from .routes import route_registry
+from src.routes import route_registry
 
 
 def get_api() -> FastAPI:
