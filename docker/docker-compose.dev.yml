@@ -1,0 +1,16 @@
+version: "3.8"
+
+services:
+  chatbot:
+    env_file:
+      - ../.dev.env
+    volumes: # mount all to avoid re-build the image when deveploing
+      - ../.:/home/workspace
+  frontend:
+    env_file:
+      - ../.dev.env
+
+networks:
+  default:
+    name: $NETWORK_NAME
+    external: true

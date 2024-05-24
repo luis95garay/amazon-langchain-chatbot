@@ -1,0 +1,32 @@
+# Use the official Python 3.9 image as the base image
+FROM python:3.9-slim
+
+SHELL [ "/bin/bash", "--login", "-c" ]
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy all files
+COPY chatbot_engine/requirements.txt ./requirements.txt
+
+# Install any dependencies specified in the requirements file
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY chatbot_engine/src ./src
+
+# Install any dependencies specified in the requirements file
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Expose the ports for each API (adjust the port numbers as needed)
+EXPOSE 9000
+
+# Copy source code, models and necessary files
+COPY chatbot_engine/main.py ./main.py
+COPY chatbot_engine/api_config.py ./api_config.py
+COPY chatbot_engine/config.py ./config.py
+COPY chatbot_engine/logger.py ./logger.py
+
+# Command and entrypoinys
+COPY chatbot_engine/entrypoint.sh ./entrypoint.sh
+RUN ["chmod", "+x", "./entrypoint.sh"]
+ENTRYPOINT ["bash", "./entrypoint.sh"]

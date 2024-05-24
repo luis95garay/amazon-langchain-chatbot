@@ -1,0 +1,40 @@
+version: "3.8"
+services:
+  redis:
+    image: redis:latest
+    restart: always
+    command: --port 6382
+    ports:
+      - "6382:6379"
+    environment:
+      - REDIS_PORT_NUMBER=6382
+    volumes:
+      - redis_data:/data
+  chatbot:
+    image: chatbot_engine:latest
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile.chatbot_engine
+    ports:
+      - "9001:9000"
+    restart: unless-stopped
+    working_dir: /app
+  frontend:
+    image: frontend:latest
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile.frontend
+    ports:
+      - "8501:8501"
+    restart: always
+    depends_on:
+      - chatbot
+
+networks:
+  default:
+    name: $NETWORK_NAME
+    external: true
+
+volumes:
+  redis_data:
+    driver: local
