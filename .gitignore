@@ -1,2 +1,5 @@
 # credentials
-credentials.env
+*.env
+
+# cache
+__pycache__/
