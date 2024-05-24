@@ -19,7 +19,7 @@ from langchain_community.vectorstores import Qdrant
 from langchain_community.embeddings import OpenAIEmbeddings
 
 from src.callback import StreamingLLMCallbackHandler
-from src.chains.assistants import (
+from lib.assistants import (
     get_chain_v0_simple, get_chain_stream, get_chain_from_scratch_stream, get_chain_from_scratch
 )
 from src.schemas import ChatResponse, InputRequest

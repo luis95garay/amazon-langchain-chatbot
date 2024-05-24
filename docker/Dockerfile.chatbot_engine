@@ -13,6 +13,7 @@ COPY chatbot_engine/requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY chatbot_engine/src ./src
+COPY chatbot_engine/lib ./lib
 
 # Install any dependencies specified in the requirements file
 RUN pip install --no-cache-dir -r requirements.txt
